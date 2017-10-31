@@ -27,15 +27,17 @@ def main():
 
   stats = generateStats(rows)
 
-  # printJSON({ 'ok': True, 'query': query, 'values': values })
   printJSON({
-    'ok': True,
-    'query': query,
-    'values': values,
-    'dateFrom': dateFrom,
-    'dateTo': dateTo,
-    'data': stats
-    # 'data': map(lambda t: list(t), rows)
+    # 'query': query,
+    # 'values': values,
+    'params': {
+      'from': dateFrom,
+      'to': dateTo,
+      'merge': merge,
+      'minDate': fetchOne('SELECT MIN(date) FROM logs;')[0],
+      'maxDate': fetchOne('SELECT MAX(date) FROM logs;')[0]
+    },
+    'stats': stats
   })
 
 def createQuery(dateFrom, dateTo, merge):

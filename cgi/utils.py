@@ -30,9 +30,10 @@ def fetchAll(query, values = None):
     return cursor.fetchall()
 
 def printJSON(data):
+    res = { 'ok': True, 'data': data }
     print('Content-Type: application/json')
     print('')
-    print(json.dumps(data, indent=2, sort_keys=True))
+    print(json.dumps(res, indent=2, sort_keys=True))
     exit()
 
 def printError(message):
