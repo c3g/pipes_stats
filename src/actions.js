@@ -8,9 +8,9 @@ export const receiveError = createAction(k.RECEIVE_ERROR)
 
 export function fetchData() {
   return (dispatch, getState) => {
-    const { data } = getState()
+    const { ui } = getState()
 
-    if (data.isLoading)
+    if (ui.isLoading)
       return
 
     dispatch(requestData())

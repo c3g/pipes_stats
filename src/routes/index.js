@@ -11,7 +11,7 @@ function Routes() {
     <Router>
       <Container>
         <Header />
-        <Route path="/" component={CounterContainer} />
+        <Route path="/" component={AppContainer} />
       </Container>
     </Router>
   )
