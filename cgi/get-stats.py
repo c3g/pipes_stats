@@ -67,6 +67,9 @@ def generateStats(records):
   minDate = dateutil.parser.parse(records[0][k.date])
   maxDate = dateutil.parser.parse(records[0][k.date])
 
+  totalSamples = 0
+  totalSubmissions = len(records)
+
   # First, split records by pipeline
 
   recordsByPipeline = {}
@@ -95,8 +98,8 @@ def generateStats(records):
   for pipeline in recordsByPipeline.keys():
     records = recordsByPipeline[pipeline]
 
-    totalSamples = 0
-    totalSubmissions = len(records)
+    pipelineSamples = 0
+    pipelineSubmissions = len(records)
 
     statsByMonth = sorted(
       map(lambda m: { 'month': m, 'samples': 0, 'submissions': 0 }, indexByMonth.keys()),
@@ -112,16 +115,21 @@ def generateStats(records):
       currentStats = statsByMonth[index]
       currentStats['samples'] += record[k.nb_samples]
       currentStats['submissions'] += 1
-      totalSamples += record[k.nb_samples]
+      pipelineSamples += record[k.nb_samples]
 
     statsByPipeline[pipeline] = {
-      'samples': totalSamples,
-      'submissions': totalSubmissions,
-      'average': float(totalSamples) / totalSubmissions,
+      'samples': pipelineSamples,
+      'submissions': pipelineSubmissions,
+      'average': float(pipelineSamples) / pipelineSubmissions,
       'months': statsByMonth
     }
 
-  return statsByPipeline
+  return {
+    'samples': totalSamples,
+    'submissions': totalSubmissions,
+    'average': float(totalSamples) / totalSubmissions,
+    'byPipeline': statsByPipeline
+  }
 
 
 def getMonthYear(date):
