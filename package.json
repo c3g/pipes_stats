@@ -6,17 +6,18 @@
   "dependencies": {
     "prop-types": "^15.5.0",
     "react": "^15.5.4",
+    "react-bootstrap-table": "^4.1.1",
     "react-dom": "^15.5.4",
     "react-redux": "^5.0.5",
     "react-router-dom": "^4.1.1",
+    "react-scripts": "1.0.13",
+    "recompose": "^0.23.4",
     "redux": "^3.6.0",
     "redux-actions": "^2.0.3",
     "redux-devtools-extension": "^2.13.0",
     "redux-thunk": "^2.2.0",
-    "recompose": "^0.23.4",
     "reselect": "^3.0.1",
-    "styled-components": "^2.0.0",
-    "react-scripts": "1.0.13"
+    "styled-components": "^2.0.0"
   },
   "devDependencies": {
     "node-plop": "^0.5.5",
