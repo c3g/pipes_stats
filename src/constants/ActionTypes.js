@@ -1,3 +1,4 @@
-// Counter
-export const INCREMENT_COUNTER = 'INCREMENT_COUNTER'
-export const DECREMENT_COUNTER = 'DECREMENT_COUNTER'
+// Data
+export const REQUEST_DATA = 'REQUEST_DATA'
+export const RECEIVE_DATA = 'RECEIVE_DATA'
+export const RECEIVE_ERROR = 'RECEIVE_ERROR'

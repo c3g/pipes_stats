@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import pure from 'recompose/pure'
 import styled from 'styled-components'
 
@@ -18,13 +17,6 @@ function Counter({ increment, incrementIfOdd, decrement, counter }) {
       </p>
     </section>
   )
-}
-
-Counter.propTypes = {
-  increment: PropTypes.func.isRequired,
-  incrementIfOdd: PropTypes.func.isRequired,
-  decrement: PropTypes.func.isRequired,
-  counter: PropTypes.number.isRequired,
 }
 
 export default pure(Counter)

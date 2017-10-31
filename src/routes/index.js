@@ -1,5 +1,5 @@
 import React from 'react'
-import { CounterContainer } from 'containers'
+import { AppContainer } from 'containers'
 import { Header } from 'components'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import styled from 'styled-components'
