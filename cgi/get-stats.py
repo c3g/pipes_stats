@@ -16,7 +16,7 @@ def main():
 
   dateFrom = get(args, 'from') or fetchOne('SELECT MIN(date) FROM logs;')[0]
   dateTo   = get(args, 'to')   or fetchOne('SELECT MAX(date) FROM logs;')[0]
-  merge    = True if get(args, 'merge') is 'true' else False
+  merge    = True if get(args, 'merge') == 'true' else False
 
   (query, values) = createQuery(dateFrom, dateTo, merge)
 

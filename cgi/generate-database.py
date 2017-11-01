@@ -25,7 +25,7 @@ def main():
     db.executemany(queries.insertLog, values)
     db.commit()
 
-    printJSON({ 'ok': True })
+    printJSON({ })
 
 
 def logToTuple(line):
@@ -71,7 +71,7 @@ def match(pattern, string):
     m = re.search(pattern, string)
     if m:
         return m.group(0)
-    return None
+    return ''
 
 def removeKeyName(token):
     return re.sub('^\w+=', '', token)

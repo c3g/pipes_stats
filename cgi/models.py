@@ -73,7 +73,7 @@ queries.insertLog = '''
     VALUES (? , ? , ?, ? , ? , ? , ? , ? , ?, ?);
 '''
 
-queries.selectAll = '''
+queries.selectAllMerged = '''
     SELECT id
          , date
          , request_ip
@@ -90,7 +90,7 @@ queries.selectAll = '''
     ;
 '''
 
-queries.selectAllMerged = '''
+queries.selectAll = '''
     SELECT id
          , date
          , request_ip
