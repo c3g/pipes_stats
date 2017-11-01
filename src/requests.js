@@ -2,22 +2,49 @@
  * requests.js
  */
 
-import { parse as queryString } from 'querystring'
+import axios from 'axios'
+import queryString from 'querystring'
+
+const { CancelToken } = axios
+
+window.axios = axios
 
 const BASE_URL = '/cgi'
 
-function fetchAPI(url, params, method = 'GET') {
+function fetchAPI(url, params, options = {}) {
+  let { method = 'get', ...other } = options
+
   let finalURL = BASE_URL + url
-  let body = method === 'POST' && params ? JSON.stringify(params) : undefined
-  if (method === 'GET' && params) {
-    finalURL = `${url}?${queryString(params)}`
+  let data = undefined
+
+  if (method === 'post' && params)
+    data = params
+
+  if (method === 'get' && params)
+    finalURL += `?${queryString.encode(params)}`
+
+  const config = {
+    method: method,
+    url: finalURL,
+    data: data,
+    ...other
   }
 
-  return fetch(finalURL, { body })
-    .then(r => r.json())
-    .then(res => res.ok ? Promise.resolve(res.data) : Promise.reject(res.message))
+  return axios(config).then(({ data }) => {
+    if (data.ok)
+      return Promise.resolve(data.data)
+    else
+      return Promise.reject(data.message)
+  })
 }
 
+
+let statsSource
 export function fetchStats(params) {
-  return fetchAPI('/get-stats.py', params)
+  if (statsSource)
+    statsSource.cancel()
+  statsSource = CancelToken.source()
+  return fetchAPI('/get-stats.py', params, { cancelToken: statsSource.token })
 }
+
+export const isCancel = axios.isCancel

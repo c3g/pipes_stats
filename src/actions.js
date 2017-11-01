@@ -1,22 +1,33 @@
 import * as k from 'constants/ActionTypes'
 import { createAction } from 'redux-actions'
-import { fetchStats } from './requests'
+import { fetchStats, isCancel } from './requests'
 
-export const requestData = createAction(k.REQUEST_DATA)
-export const receiveData = createAction(k.RECEIVE_DATA)
+function reloadData(fn) {
+  return function(...args) {
+    return (dispatch, getState) => {
+      dispatch(fn(...args))
+      dispatch(fetchData())
+    }
+  }
+}
+
+export const setDateFrom  = reloadData(createAction(k.SET_DATE_FROM))
+export const setDateTo    = reloadData(createAction(k.SET_DATE_TO))
+export const setMerge     = reloadData(createAction(k.SET_MERGE))
+export const setPipelines = reloadData(createAction(k.SET_PIPELINES))
+
+export const requestData  = createAction(k.REQUEST_DATA)
+export const receiveData  = createAction(k.RECEIVE_DATA)
 export const receiveError = createAction(k.RECEIVE_ERROR)
 
 export function fetchData() {
   return (dispatch, getState) => {
     const { ui } = getState()
 
-    if (ui.isLoading)
-      return
-
     dispatch(requestData())
 
-    fetchStats()
+    fetchStats(ui.params)
     .then(data => dispatch(receiveData(data)))
-    .catch(err => dispatch(receiveError(err)))
+    .catch(err => !isCancel(err) && dispatch(receiveError(err)))
   }
 }
