@@ -3,7 +3,7 @@
  */
 
 import axios from 'axios'
-import queryString from 'querystring'
+import queryString from 'utils/queryString'
 
 const { CancelToken } = axios
 
@@ -21,7 +21,7 @@ function fetchAPI(url, params, options = {}) {
     data = params
 
   if (method === 'get' && params)
-    finalURL += `?${queryString.encode(params)}`
+    finalURL += `?${queryString(params)}`
 
   const config = {
     method: method,
