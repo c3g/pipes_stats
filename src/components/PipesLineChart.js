@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts'
 
+import hexToRGBA from 'utils/hexToRGBA'
+
 const PopoverList = styled.ul`
   list-style: none;
   padding: 0;
@@ -11,7 +13,8 @@ const PopoverList = styled.ul`
 
 function PipesLineChart({
     data,
-    colors
+    colors,
+    activePipeline
   }) {
 
   const keys = data.length ? Object.keys(data[0]).filter(k => k !== 'month') : []
@@ -28,16 +31,21 @@ function PipesLineChart({
       <YAxis type='number' domain={[0, 'dataMax || 1000']}/>
       <Tooltip />
       {
-        keys.map((key, i) =>
-          <Line
+        keys.map((key, i) => {
+
+          const isActive = activePipeline === key
+
+          return <Line
             type='linear'
             key={key}
             dataKey={key}
-            stroke={colors[key]}
-            strokeWidth={1}
+            stroke={ (activePipeline === undefined) ? colors[key] :
+                                           isActive ? colors[key] : hexToRGBA(colors[key], 0.3)
+            }
+            strokeWidth={isActive ? 2 : 1}
             dot={false}
           />
-        )
+        })
       }
     </LineChart>
   )

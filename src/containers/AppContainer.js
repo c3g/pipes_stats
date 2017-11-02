@@ -13,13 +13,13 @@ import PipesPieChart from 'components/PipesPieChart'
 import PipesTable from 'components/PipesTable'
 
 import weakMapMemoize from 'utils/weakMapMemoize'
-import { fetchData } from 'actions'
+import { fetchData, setActivePipeline, removeActivePipeline } from 'actions'
 
 class AppContainer extends React.Component {
   render() {
 
     const { ui, stats } = this.props
-    const { params } = ui
+    const { params, activePipeline } = ui
     const { selected } = params.pipelines
     const { byPipeline } = stats
 
@@ -30,8 +30,6 @@ class AppContainer extends React.Component {
     const tableData = generateTableData(byPipeline, selected)
 
     const colorMap = generateColorMap(byPipeline)
-
-    console.log('DATA', samplesChartData)
 
     return (
       <Grid>
@@ -53,15 +51,31 @@ class AppContainer extends React.Component {
         </Row>
         <Row className={cx({ 'is-loading': ui.isLoading })}>
           <Col xs={6}>
-            <PipesPieChart data={samplesChartData} colors={colorMap} />
+            <PipesPieChart
+              data={samplesChartData}
+              colors={colorMap}
+              activePipeline={activePipeline}
+              onMouseEnter={this.props.setActivePipeline}
+              onMouseLeave={this.props.removeActivePipeline}
+            />
           </Col>
           <Col xs={6}>
-            { /* <PipesPieChart data={submissionsChartData} colors={colorMap} /> */ }
+            <PipesPieChart
+              data={submissionsChartData}
+              colors={colorMap}
+              activePipeline={activePipeline}
+              onMouseEnter={this.props.setActivePipeline}
+              onMouseLeave={this.props.removeActivePipeline}
+            />
           </Col>
         </Row>
         <Row className={cx({ 'is-loading': ui.isLoading })}>
           <Col xs={12}>
-            <PipesLineChart data={lineChartData} colors={colorMap} />
+            <PipesLineChart
+              data={lineChartData}
+              colors={colorMap}
+              activePipeline={activePipeline}
+            />
           </Col>
         </Row>
         <Row className={cx({ 'is-loading': ui.isLoading })}>
@@ -120,7 +134,7 @@ const mapStateToProps = createStructuredSelector({
 })
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ fetchData }, dispatch)
+  return bindActionCreators({ fetchData, setActivePipeline, removeActivePipeline }, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppContainer)

@@ -2,48 +2,97 @@ import React from 'react'
 import styled from 'styled-components'
 import { PieChart, Pie, Cell, Sector, Tooltip } from 'recharts'
 
+import hexToRGBA from 'utils/hexToRGBA'
+
+let containers = []
+
 class PipesPieChart extends React.Component {
   state = {}
 
-  onPieEnter = (data, index) => {
-    debugger
-    this.setState({ activeIndex: index })
+  onMouseEnter = (data, index) => {
+    this.props.onMouseEnter && this.props.onMouseEnter(data.name)
   }
 
-  shouldComponentUpdate() {
-    return this.previousData !== this.props.data
+  onMouseLeave = (data, index) => {
+    this.props.onMouseLeave && this.props.onMouseLeave(data.name)
+  }
+
+  onMouseMove = (data, index) => {
+    if (this.props.activePipeline !== data.name)
+      this.props.onMouseEnter && this.props.onMouseEnter(data.name)
+  }
+
+  onDocumentMouseMove = (ev) => {
+    const { target } = ev
+    const { props, chart } = this
+    // XXX: we're using recharts internal .container here
+    if (props.activePipeline
+      && !containers.some(c => c.contains(target))
+      && target.className !== 'recharts-sector'
+      && target.className.baseVal !== 'recharts-sector'
+    ) {
+      this.props.onMouseLeave && this.props.onMouseLeave(props.activePipeline)
+    }
+  }
+
+  componentDidMount() {
+    document.addEventListener('mousemove', this.onDocumentMouseMove)
+    this.container = this.chart.container
+    containers.push(this.container)
+  }
+
+  componentDidUnmount() {
+    document.removeEventListener('mousemove', this.onDocumentMouseMove)
+    containers.filter(c => c === this.container)
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const shouldUpdate = ((this.previousData.length === 0 || this.previousData !== nextProps.data)
+        || (this.activePipeline !== nextProps.activePipeline))
+
+    console.log(shouldUpdate, { previous: this.activePipeline, new: nextProps.activePipeline })
+
+    return shouldUpdate
   }
 
   render() {
 
-    const { data, colors } = this.props
+    const { data, colors, activePipeline } = this.props
     const keys = data.length ? Object.keys(data[0]).filter(k => k !== 'month') : []
 
-    /*activeIndex={this.state.activeIndex}
-     *activeShape={renderActiveShape}
-     *onMouseEnter={this.onPieEnter}*/
+    const activeIndex = data.findIndex(d => d.name === activePipeline)
 
     if (this.previousData != data)
       this.previousData = data
 
+    if (this.activePipeline != activePipeline)
+      this.activePipeline = activePipeline
+
     return (
-      <PieChart width={540} height={300}>
+      <PieChart width={540} height={300} ref={r => this.chart = r}>
         <Pie data={data}
           cx='50%'
           cy='50%'
+          dataKey='value'
           innerRadius={40}
           outerRadius={80}
           label={renderLabel}
           labelLine={false}
           isAnimationActive={true}
-          onMouseEnter={this.onPieEnter}
+          onMouseEnter={this.onMouseEnter}
+          onMouseLeave={this.onMouseLeave}
+          onMouseMove={this.onMouseMove}
+          activeIndex={activeIndex}
+          activeShape={renderActiveShape}
         >
           {
             data.map((entry, i) =>
-              <Cell fill={colors[entry.name]}/>)
+              <Cell fill={activePipeline === undefined ? colors[entry.name] :
+                         entry.name === activePipeline ? colors[entry.name] : hexToRGBA(colors[entry.name], 0.5)
+              }/>
+            )
           }
         </Pie>
-        <Tooltip />
       </PieChart>
     )
   }

@@ -38,7 +38,9 @@ body {
   top: calc(50% - 5px);
   right: 10px;
 }
-
+.MultiSelect-item > i {
+    min-width: 20px;
+}
 
 td.key {
   font-weight: bold;
@@ -83,3 +85,4 @@ td.key {
   margin-right: 0.4em;
 }
 `
+// vim: ft=css
