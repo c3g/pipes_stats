@@ -22,6 +22,11 @@
         "extensions": [".js", ".jsx"]
       }
     ],
+    "no-unused-vars": [
+      "error",
+      { "args": "none" }
+    ],
+    "prefer-template": "ignore",
     "import/no-extraneous-dependencies": 0,
     "import/no-unresolved": 0,
     "import/extensions": 0,
