@@ -17,8 +17,9 @@ export const setDateFrom  = reloadData(createAction(k.SET_DATE_FROM))
 export const setDateTo    = reloadData(createAction(k.SET_DATE_TO))
 export const setMerge     = reloadData(createAction(k.SET_MERGE))
 
-export const setPipelines = createAction(k.SET_PIPELINES)
-export const setActivePipeline = createAction(k.SET_ACTIVE_PIPELINE)
+export const setPipelines         = createAction(k.SET_PIPELINES)
+export const setActivePipeline    = createAction(k.SET_ACTIVE_PIPELINE)
+export const removeActivePipeline = createAction(k.REMOVE_ACTIVE_PIPELINE)
 
 export const requestData  = createAction(k.REQUEST_DATA)
 export const receiveData  = createAction(k.RECEIVE_DATA)
