@@ -81,7 +81,7 @@ queries.selectAllMerged = '''
          , http_user_agent
          , hostname
          , host_ip
-         , pipeline
+         , pipeline as pipeline_
          , version
          , steps
          , nb_samples
@@ -98,7 +98,7 @@ queries.selectAll = '''
          , http_user_agent
          , hostname
          , host_ip
-         , pipeline || '-' || version as pipeline
+         , pipeline || '-' || version as pipeline_
          , version
          , steps
          , nb_samples

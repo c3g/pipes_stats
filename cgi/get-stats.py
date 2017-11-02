@@ -14,11 +14,13 @@ from models import k, keys, queries
 def main():
   args = cgi.FieldStorage()
 
-  dateFrom = get(args, 'from') or fetchOne('SELECT MIN(date) FROM logs;')[0]
-  dateTo   = get(args, 'to')   or fetchOne('SELECT MAX(date) FROM logs;')[0]
-  merge    = True if get(args, 'merge') == 'true' else False
 
-  (query, values) = createQuery(dateFrom, dateTo, merge)
+  dateFrom  = get(args, 'from') or fetchOne('SELECT MIN(date) FROM logs;')[0]
+  dateTo    = get(args, 'to')   or fetchOne('SELECT MAX(date) FROM logs;')[0]
+  merge     = True if get(args, 'merge') == 'true' else False
+  pipelines = json.loads(args['pipelines'].value) if 'pipelines' in args else None
+
+  (query, values) = createQuery(dateFrom, dateTo, merge, pipelines)
 
   cursor = db.cursor()
   cursor.execute(query, values)
@@ -27,20 +29,24 @@ def main():
 
   stats = generateStats(rows)
 
+  params = {
+    'from': dateFrom,
+    'to': dateTo,
+    'merge': merge,
+    'minDate': fetchOne('SELECT MIN(date) FROM logs;')[0],
+    'maxDate': fetchOne('SELECT MAX(date) FROM logs;')[0]
+  }
+  if pipelines:
+    params['pipelines'] = pipelines
+
   printJSON({
     # 'query': query,
     # 'values': values,
-    'params': {
-      'from': dateFrom,
-      'to': dateTo,
-      'merge': merge,
-      'minDate': fetchOne('SELECT MIN(date) FROM logs;')[0],
-      'maxDate': fetchOne('SELECT MAX(date) FROM logs;')[0]
-    },
+    'params': params,
     'stats': stats
   })
 
-def createQuery(dateFrom, dateTo, merge):
+def createQuery(dateFrom, dateTo, merge, pipelines):
   """
   Creates the SQL query and values to from given parameters
   """
@@ -48,13 +54,16 @@ def createQuery(dateFrom, dateTo, merge):
   values = []
 
   if dateFrom != None:
-    clauses.append("date >= datetime(?)")
+    clauses.append('date >= datetime(?)')
     values.append(dateFrom)
 
   if dateTo != None:
-    clauses.append("date <= datetime(?)")
+    clauses.append('date <= datetime(?)')
     values.append(dateTo)
 
+  if pipelines:
+    clauses.append('pipeline_ in ({seq})'.format(seq=','.join(['?'] * len(pipelines))))
+    values.extend(pipelines)
 
   query = (queries.selectAll if not merge else queries.selectAllMerged) % (' AND '.join(clauses))
 
