@@ -14,6 +14,11 @@ body {
   font-family: sans-serif;
 }
 
+.is-loading {
+  opacity: 0.6;
+}
+
+
 .MultiSelect {
   display: inline-block;
   max-width: 100%;
