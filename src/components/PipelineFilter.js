@@ -7,39 +7,34 @@ import MultiSelect from 'components/MultiSelect'
 import { setPipelines } from 'actions'
 
 class PipelineFilter extends React.Component {
-  state = {
-    values: {},
-  }
-
-  componentWillReceiveProps(props) {
-    if (props.byPipeline !== this.props.byPipeline) {
-      const keys = Object.keys(props.byPipeline)
-      const checked = props.params.pipelines ? new Set(props.params.pipelines) : new Set(keys)
-
-      const values = {}
-      keys.forEach(key => values[key] = checked.has(key))
-
-      this.setState({ values: values })
-    }
-  }
 
   onChange = (pipeline, value) => {
-    const values = { ...this.state.values }
+    const values = { ...this.values }
     values[pipeline] = value
 
-    this.props.setPipelines(
+    const selectedPipelines =
       Object.entries(values)
-      .filter(([pipeline, checked]) => checked)
-      .map(([pipeline, checked]) => pipeline)
-    )
+        .filter(([pipeline, checked]) => checked)
+        .map(([pipeline, checked]) => pipeline)
+
+    this.props.setPipelines(selectedPipelines)
   }
 
   render() {
-    const { values } = this.state
+    const { pipelines } = this.props.params
+
+    this.values = {}
+
+    if (pipelines.all) {
+      const all = [...pipelines.all].sort((a, b) => a.localeCompare(b))
+      const selected = pipelines.selected ? new Set(pipelines.selected) : new Set(all)
+
+      all.forEach(key => this.values[key] = selected.has(key))
+    }
 
     return (
       <MultiSelect
-        values={values}
+        values={this.values}
         onChange={this.onChange}
       />
     )
