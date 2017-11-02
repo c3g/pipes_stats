@@ -34,10 +34,13 @@ def main():
     'to': dateTo,
     'merge': merge,
     'minDate': fetchOne('SELECT MIN(date) FROM logs;')[0],
-    'maxDate': fetchOne('SELECT MAX(date) FROM logs;')[0]
+    'maxDate': fetchOne('SELECT MAX(date) FROM logs;')[0],
+    'pipelines': {
+      'all': getDistinctPipelines(merge)
+    }
   }
   if pipelines:
-    params['pipelines'] = pipelines
+    params['pipelines']['selected'] = pipelines
 
   printJSON({
     # 'query': query,
@@ -69,6 +72,15 @@ def createQuery(dateFrom, dateTo, merge, pipelines):
 
   return (query, tuple(values))
 
+def getDistinctPipelines(merge):
+  """
+  Returns the list of distinct pipelines
+  """
+  cursor = db.cursor()
+  cursor.execute(queries.distinctPipelines if not merge else queries.distinctPipelinesMerged)
+  rows = cursor.fetchall()
+
+  return map(lambda r: r[0], rows)
 
 def generateStats(records):
   """
