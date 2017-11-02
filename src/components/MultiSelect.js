@@ -38,6 +38,8 @@ class MultiSelect extends Component {
 
     const checkedValues = Object.keys(values).filter(v => values[v])
 
+    const allSelected = Object.values(values).every(x => x)
+
     const items = Object.keys(values).map(value =>
       <li>
         <a key={value}
@@ -72,6 +74,18 @@ class MultiSelect extends Component {
           ref='list'
           className='MultiSelect-list dropdown-menu'
         >
+          { items.length > 0 &&
+            <li>
+              <a href='#'
+                  className='MultiSelect-item'
+                  onClick={() => this.props.onChangeAll(!allSelected)} >
+                <i
+                  className={allSelected ? 'fa fa-check-square-o' : 'fa fa-square-o'}
+                /> Select All
+              </a>
+            </li>
+          }
+          <li className='divider' role='separator' />
           { items }
           { items.length === 0 &&
             <li className='disabled'>

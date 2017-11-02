@@ -20,6 +20,13 @@ class PipelineFilter extends React.Component {
     this.props.setPipelines(selectedPipelines)
   }
 
+  onChangeAll = (value) => {
+    if (value)
+      this.props.setPipelines(Object.keys(this.values))
+    else
+      this.props.setPipelines([])
+  }
+
   render() {
     const { pipelines } = this.props.params
 
@@ -36,6 +43,7 @@ class PipelineFilter extends React.Component {
       <MultiSelect
         values={this.values}
         onChange={this.onChange}
+        onChangeAll={this.onChangeAll}
       />
     )
   }
