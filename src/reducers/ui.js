@@ -2,7 +2,12 @@ import * as k from 'constants/ActionTypes'
 
 const initialState = {
   isLoading: false,
-  params: {},
+  params: {
+    from: undefined,
+    to: undefined,
+    merge: undefined,
+    pipelines: { all: undefined, selected: undefined },
+  },
   message: '',
 }
 
@@ -23,9 +28,13 @@ export default function uiReducer(state = initialState, action) {
     case k.SET_DATE_TO:
       return { ...state, params: { ...state.params, to: action.payload } }
     case k.SET_MERGE:
-      return { ...state, params: { ...state.params, merge: action.payload } }
+      const newState = { ...state, params: { ...state.params, merge: action.payload } }
+      if (action.payload !== state.params.merge)
+        newState.params.pipelines = { all: undefined, selected: undefined }
+      return newState
     case k.SET_PIPELINES:
-      return { ...state, params: { ...state.params, pipelines: action.payload } }
+      return { ...state, params: { ...state.params, pipelines: {
+                ...state.params.pipelines, selected: action.payload } } }
     case k.RECEIVE_ERROR:
       return { ...state, isLoading: false, message: action.payload }
     default:

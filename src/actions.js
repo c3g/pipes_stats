@@ -26,7 +26,13 @@ export function fetchData() {
 
     dispatch(requestData())
 
-    fetchStats(ui.params)
+    const params = {
+      from:      ui.params.from,
+      to:        ui.params.to,
+      merge:     ui.params.merge,
+      pipelines: ui.params.pipelines.selected,
+    }
+    fetchStats(params)
     .then(data => dispatch(receiveData(data)))
     .catch(err => !isCancel(err) && dispatch(receiveError(err)))
   }
