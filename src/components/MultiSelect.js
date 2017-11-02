@@ -39,16 +39,17 @@ class MultiSelect extends Component {
     const checkedValues = Object.keys(values).filter(v => values[v])
 
     const items = Object.keys(values).map(value =>
-      <button
-          key={value}
-          type="button"
-          className={cx('MultiSelect-item list-group-item')}
-          onClick={() => onChange(value, !values[value])} >
-        <i
-          className={values[value] ? 'fa fa-check-square-o' : 'fa fa-square-o'}
-        />&nbsp;
-        { value }
-      </button>
+      <li>
+        <a key={value}
+            href='#'
+            className='MultiSelect-item'
+            onClick={() => onChange(value, !values[value])} >
+          <i
+            className={values[value] ? 'fa fa-check-square-o' : 'fa fa-square-o'}
+          />&nbsp;
+          { value }
+        </a>
+      </li>
     )
 
     return (
@@ -59,21 +60,27 @@ class MultiSelect extends Component {
         <button
           ref='button'
           type='button'
-          className='MultiSelect-button btn btn-default'
+          className='MultiSelect-button btn btn-default dropdown-toggle'
           onClick={this.onClick}
         >
           <span>
             { checkedValues.join(', ') || 'No value selected' }
           </span>
-          <i className='glyphicon glyphicon-chevron-down' />
         </button>
-        <div
+        <i className='MultiSelect-icon glyphicon glyphicon-chevron-down' />
+        <ul
           ref='list'
           className='MultiSelect-list dropdown-menu'
         >
           { items }
-          { items.length === 0 && <div className='list-group-item'><i>No items</i></div> }
-        </div>
+          { items.length === 0 &&
+            <li className='disabled'>
+              <a href='#'>
+                <i>No items</i>
+              </a>
+            </li>
+          }
+        </ul>
       </div>
     )
   }

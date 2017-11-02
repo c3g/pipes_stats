@@ -14,10 +14,30 @@ body {
   font-family: sans-serif;
 }
 
-.block {
-  display: block !important;
+.MultiSelect {
+  display: inline-block;
+  max-width: 100%;
+}
+.MultiSelect-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+.MultiSelect-button {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 30px;
+}
+.MultiSelect-icon {
+  position: absolute;
+  top: calc(50% - 5px);
+  right: 10px;
 }
 
+
+td.key {
+  font-weight: bold;
+}
 
 .recharts-tooltip-wrapper {
   z-index: 1;
