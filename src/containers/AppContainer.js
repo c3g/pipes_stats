@@ -3,6 +3,7 @@ import { createStructuredSelector, createSelector } from 'reselect'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Grid, Row, Col } from 'react-bootstrap'
+import cx from 'classname'
 
 import DateRange from 'components/DateRange'
 import MergeCheckbox from 'components/MergeCheckbox'
@@ -11,17 +12,26 @@ import PipesLineChart from 'components/PipesLineChart'
 import PipesPieChart from 'components/PipesPieChart'
 import PipesTable from 'components/PipesTable'
 
+import weakMapMemoize from 'utils/weakMapMemoize'
 import { fetchData } from 'actions'
 
 class AppContainer extends React.Component {
   render() {
 
     const { ui, stats } = this.props
+    const { params } = ui
+    const { selected } = params.pipelines
+    const { byPipeline } = stats
 
-    const lineChartData = generateLineChartData(stats.byPipeline)
-    const samplesChartData = generatePieChartData(stats.byPipeline, 'samples')
-    const submissionsChartData = generatePieChartData(stats.byPipeline, 'submissions')
-    const tableData = generateTableData(stats.byPipeline)
+
+    const samplesChartData = generatePieChartData(byPipeline, 'samples', selected)
+    const submissionsChartData = generatePieChartData(byPipeline, 'submissions', selected)
+    const lineChartData = generateLineChartData(byPipeline, selected)
+    const tableData = generateTableData(byPipeline, selected)
+
+    const colorMap = generateColorMap(byPipeline)
+
+    console.log('DATA', samplesChartData)
 
     return (
       <Grid>
@@ -41,20 +51,20 @@ class AppContainer extends React.Component {
             <PipelineFilter />
           </Col>
         </Row>
-        <Row>
+        <Row className={cx({ 'is-loading': ui.isLoading })}>
           <Col xs={6}>
-            <PipesPieChart data={samplesChartData} />
+            <PipesPieChart data={samplesChartData} colors={colorMap} />
           </Col>
           <Col xs={6}>
-            <PipesPieChart data={submissionsChartData} />
+            { /* <PipesPieChart data={submissionsChartData} colors={colorMap} /> */ }
           </Col>
         </Row>
-        <Row>
+        <Row className={cx({ 'is-loading': ui.isLoading })}>
           <Col xs={12}>
-            <PipesLineChart data={lineChartData} />
+            <PipesLineChart data={lineChartData} colors={colorMap} />
           </Col>
         </Row>
-        <Row>
+        <Row className={cx({ 'is-loading': ui.isLoading })}>
           <Col xs={12}>
             <PipesTable data={tableData} />
           </Col>
@@ -64,8 +74,15 @@ class AppContainer extends React.Component {
   }
 }
 
+const generateColorMap = weakMapMemoize((byPipeline) => {
+  const colorMap = {}
+  Object.entries(byPipeline).forEach(([pipeline, data]) => {
+    colorMap[pipeline] = data.color
+  })
+  return colorMap
+})
 
-function generateLineChartData(byPipeline) {
+const generateLineChartData = weakMapMemoize((byPipeline, selected) => {
   const pipelines = Object.keys(byPipeline)
   if (pipelines.length === 0)
     return []
@@ -74,25 +91,27 @@ function generateLineChartData(byPipeline) {
 
   pipelines.forEach(key => {
     const pipeline = byPipeline[key]
+    const isSelected = selected.has(key)
     pipeline.months.forEach((month, i) => {
-      data[i][key] = month.samples
+      data[i][key] = isSelected ? month.samples : 0
     })
   })
 
   return data
-}
+})
 
-function generatePieChartData(byPipeline, property) {
+const generatePieChartData = weakMapMemoize([WeakMap, Map, WeakMap], (byPipeline, property, selected) => {
   return Object.entries(byPipeline).map(([name, stats]) => ({
-    name, value: stats[property]
+    name, value: selected.has(name) ? stats[property] : 0
   }))
-}
+})
 
-function generateTableData(byPipeline) {
-  return Object.entries(byPipeline).map(([name, stats]) => ({
-    name, ...stats
-  }))
-}
+const generateTableData = weakMapMemoize((byPipeline, selected) => {
+  return Object.entries(byPipeline)
+    .filter(([name, stats]) => selected.has(name))
+    .map(([name, stats]) => ({ name, ...stats }))
+})
+
 
 
 const mapStateToProps = createStructuredSelector({
