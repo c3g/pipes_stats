@@ -41,6 +41,8 @@ def main():
   }
   if pipelines:
     params['pipelines']['selected'] = pipelines
+  else:
+    params['pipelines']['selected'] = params['pipelines']['all']
 
   printJSON({
     # 'query': query,
