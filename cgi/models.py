@@ -106,11 +106,3 @@ queries.selectAll = '''
      WHERE %s
     ;
 '''
-
-queries.distinctPipelines = '''
-    SELECT DISTINCT(pipeline || '-' || version) FROM logs;
-'''
-
-queries.distinctPipelinesMerged = '''
-    SELECT DISTINCT(pipeline) FROM logs;
-'''

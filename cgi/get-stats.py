@@ -18,9 +18,8 @@ def main():
   dateFrom  = get(args, 'from') or fetchOne('SELECT MIN(date) FROM logs;')[0]
   dateTo    = get(args, 'to')   or fetchOne('SELECT MAX(date) FROM logs;')[0]
   merge     = True if get(args, 'merge') == 'true' else False
-  pipelines = json.loads(args['pipelines'].value) if 'pipelines' in args else None
 
-  (query, values) = createQuery(dateFrom, dateTo, merge, pipelines)
+  (query, values) = createQuery(dateFrom, dateTo, merge)
 
   cursor = db.cursor()
   cursor.execute(query, values)
@@ -34,15 +33,8 @@ def main():
     'to': dateTo,
     'merge': merge,
     'minDate': fetchOne('SELECT MIN(date) FROM logs;')[0],
-    'maxDate': fetchOne('SELECT MAX(date) FROM logs;')[0],
-    'pipelines': {
-      'all': getDistinctPipelines(merge)
-    }
+    'maxDate': fetchOne('SELECT MAX(date) FROM logs;')[0]
   }
-  if pipelines:
-    params['pipelines']['selected'] = pipelines
-  else:
-    params['pipelines']['selected'] = params['pipelines']['all']
 
   printJSON({
     # 'query': query,
@@ -51,7 +43,7 @@ def main():
     'stats': stats
   })
 
-def createQuery(dateFrom, dateTo, merge, pipelines):
+def createQuery(dateFrom, dateTo, merge):
   """
   Creates the SQL query and values to from given parameters
   """
@@ -66,23 +58,9 @@ def createQuery(dateFrom, dateTo, merge, pipelines):
     clauses.append('date <= datetime(?)')
     values.append(dateTo)
 
-  if pipelines:
-    clauses.append('pipeline_ in ({seq})'.format(seq=','.join(['?'] * len(pipelines))))
-    values.extend(pipelines)
-
   query = (queries.selectAll if not merge else queries.selectAllMerged) % (' AND '.join(clauses))
 
   return (query, tuple(values))
-
-def getDistinctPipelines(merge):
-  """
-  Returns the list of distinct pipelines
-  """
-  cursor = db.cursor()
-  cursor.execute(queries.distinctPipelines if not merge else queries.distinctPipelinesMerged)
-  rows = cursor.fetchall()
-
-  return map(lambda r: r[0], rows)
 
 def generateStats(records):
   """
