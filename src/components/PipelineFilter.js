@@ -27,7 +27,7 @@ class PipelineFilter extends React.Component {
 
     if (pipelines.all) {
       const all = [...pipelines.all].sort((a, b) => a.localeCompare(b))
-      const selected = pipelines.selected ? new Set(pipelines.selected) : new Set(all)
+      const selected = pipelines.selected ? pipelines.selected : new Set(all)
 
       all.forEach(key => this.values[key] = selected.has(key))
     }

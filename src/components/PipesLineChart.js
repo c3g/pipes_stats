@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts'
-import colors from 'constants/colors'
 
 const PopoverList = styled.ul`
   list-style: none;
@@ -11,7 +10,8 @@ const PopoverList = styled.ul`
 `
 
 function PipesLineChart({
-    data
+    data,
+    colors
   }) {
 
   const keys = data.length ? Object.keys(data[0]).filter(k => k !== 'month') : []
@@ -33,7 +33,8 @@ function PipesLineChart({
             type='linear'
             key={key}
             dataKey={key}
-            stroke={colors[i % colors.length]}
+            stroke={colors[key]}
+            strokeWidth={1}
             dot={false}
           />
         )

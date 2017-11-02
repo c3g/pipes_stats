@@ -1,23 +1,30 @@
 import React from 'react'
 import styled from 'styled-components'
 import { PieChart, Pie, Cell, Sector, Tooltip } from 'recharts'
-import colors from 'constants/colors'
 
 class PipesPieChart extends React.Component {
   state = {}
 
   onPieEnter = (data, index) => {
+    debugger
     this.setState({ activeIndex: index })
+  }
+
+  shouldComponentUpdate() {
+    return this.previousData !== this.props.data
   }
 
   render() {
 
-    const { data } = this.props
+    const { data, colors } = this.props
     const keys = data.length ? Object.keys(data[0]).filter(k => k !== 'month') : []
 
     /*activeIndex={this.state.activeIndex}
      *activeShape={renderActiveShape}
      *onMouseEnter={this.onPieEnter}*/
+
+    if (this.previousData != data)
+      this.previousData = data
 
     return (
       <PieChart width={540} height={300}>
@@ -28,10 +35,12 @@ class PipesPieChart extends React.Component {
           outerRadius={80}
           label={renderLabel}
           labelLine={false}
+          isAnimationActive={true}
+          onMouseEnter={this.onPieEnter}
         >
           {
             data.map((entry, i) =>
-              <Cell fill={colors[i % colors.length]}/>)
+              <Cell fill={colors[entry.name]}/>)
           }
         </Pie>
         <Tooltip />
