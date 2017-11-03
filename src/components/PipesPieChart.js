@@ -4,7 +4,8 @@ import { PieChart, Pie, Cell, Sector, Tooltip } from 'recharts'
 
 import hexToRGBA from 'utils/hexToRGBA'
 
-const OPACITY = 0.5
+const OPACITY_PIE  = 0.5
+const OPACITY_TEXT = 0.3
 
 let containers = []
 
@@ -90,7 +91,7 @@ class PipesPieChart extends React.Component {
           {
             data.map((entry, i) =>
               <Cell fill={activePipeline === undefined ? colors[entry.name] :
-                         entry.name === activePipeline ? colors[entry.name] : hexToRGBA(colors[entry.name], OPACITY)
+                         entry.name === activePipeline ? colors[entry.name] : hexToRGBA(colors[entry.name], OPACITY_PIE)
               }/>
             )
           }
@@ -158,7 +159,7 @@ function renderLabel(props, activePipeline) {
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none'/>
       <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3}
         textAnchor={textAnchor}
-        fill={ `rgba(51, 51, 51, ${ isActive ? 1 : someActive ? OPACITY : 1 })` }
+        fill={ `rgba(51, 51, 51, ${ isActive ? 1 : someActive ? OPACITY_TEXT : 1 })` }
         style={textStyle}
       >
         { name } {`(${ payload.value })`}
