@@ -64,6 +64,7 @@ class AppContainer extends React.Component {
         <Grid className='App-content'>
           <Row className={cx({ 'is-loading': ui.isLoading })}>
             <Col xs={6}>
+              <h4>By Samples</h4>
               <PipesPieChart
                 data={samplesChartData}
                 colors={colorMap}
@@ -73,6 +74,7 @@ class AppContainer extends React.Component {
               />
             </Col>
             <Col xs={6}>
+              <h4>By Submissions</h4>
               <PipesPieChart
                 data={submissionsChartData}
                 colors={colorMap}

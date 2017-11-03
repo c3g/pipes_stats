@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { PieChart, Pie, Cell, Sector, Tooltip } from 'recharts'
 
+import AutoSizer from 'components/AutoSizer'
 import hexToRGBA from 'utils/hexToRGBA'
 
 const OPACITY_PIE  = 0.5
@@ -69,31 +70,36 @@ class PipesPieChart extends React.Component {
       this.activePipeline = activePipeline
 
     return (
-      <PieChart width={540} height={300} ref={r => this.chart = r}>
-        <Pie data={data}
-          cx='50%'
-          cy='50%'
-          dataKey='value'
-          innerRadius={40}
-          outerRadius={80}
-          label={props => renderLabel(props, activePipeline)}
-          labelLine={false}
-          isAnimationActive={true}
-          onMouseEnter={this.onMouseEnter}
-          onMouseLeave={this.onMouseLeave}
-          onMouseMove={this.onMouseMove}
-          activeIndex={activeIndex}
-          activeShape={renderActiveShape}
-        >
-          {
-            data.map((entry, i) =>
-              <Cell fill={activePipeline === undefined ? colors[entry.name] :
-                         entry.name === activePipeline ? colors[entry.name] : hexToRGBA(colors[entry.name], OPACITY_PIE)
-              }/>
-            )
-          }
-        </Pie>
-      </PieChart>
+      <AutoSizer disableHeight>
+      {
+        ({ width }) =>
+          <PieChart width={width} height={300} ref={r => this.chart = r}>
+            <Pie data={data}
+              cx='50%'
+              cy='50%'
+              dataKey='value'
+              innerRadius={40}
+              outerRadius={80}
+              label={props => renderLabel(props, activePipeline)}
+              labelLine={false}
+              isAnimationActive={true}
+              onMouseEnter={this.onMouseEnter}
+              onMouseLeave={this.onMouseLeave}
+              onMouseMove={this.onMouseMove}
+              activeIndex={activeIndex}
+              activeShape={renderActiveShape}
+            >
+              {
+                data.map((entry, i) =>
+                  <Cell fill={activePipeline === undefined ? colors[entry.name] :
+                            entry.name === activePipeline ? colors[entry.name] : hexToRGBA(colors[entry.name], OPACITY_PIE)
+                  }/>
+                )
+              }
+            </Pie>
+          </PieChart>
+      }
+      </AutoSizer> 
     )
   }
 }
