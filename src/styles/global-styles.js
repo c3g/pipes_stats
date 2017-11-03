@@ -40,14 +40,15 @@ body {
   overflow-y: auto;
 }
 .MultiSelect-button {
-  max-width: 100%;
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 30px;
+  text-align: left;
 }
 .MultiSelect-icon {
   position: absolute;
-  top: calc(50% - 5px);
+  top: calc(50% - 7px);
   right: 10px;
 }
 .MultiSelect-item > i {

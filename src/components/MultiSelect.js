@@ -69,7 +69,7 @@ class MultiSelect extends Component {
           disabled={loading}
         >
           <span>
-            { loading ? 'Loading...' : (checkedValues.join(', ') || 'No value selected') }
+            { checkedValues.join(', ') || (loading ? 'Loading...' : 'No value selected') }
           </span>
         </button>
         <Icon className='MultiSelect-icon' name={ loading ? 'spinner fa-spin' : 'chevron-down' } />
