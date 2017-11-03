@@ -24,7 +24,7 @@
   display: inline-block;
   height: 25px;
   line-height: 25px;
-  /*font-size: 1rem;*/
+  font-weight: normal;
 }
 
 [type="checkbox"] + label:before,
