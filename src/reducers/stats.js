@@ -10,9 +10,7 @@ const initialState = {
 export default function dataReducer(state = initialState, action) {
   switch (action.type) {
     case k.RECEIVE_DATA:
-      const newState = { ...action.payload.stats }
-      delete newState.byPipeline.Forge
-      return newState
+      return { ...action.payload.stats }
     default:
       return state
   }
