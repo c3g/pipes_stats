@@ -29,10 +29,11 @@ class PipesPieChart extends React.Component {
   onDocumentMouseMove = (ev) => {
     const { target } = ev
     const { props, chart } = this
+    const className = String(target.className.baseVal || target.className)
     // XXX: we're using recharts internal .container here
     if (props.activePipeline
       && !containers.some(c => c.contains(target))
-      && !String(target.className.baseVal || target.className).includes('recharts')
+      && !className.includes('recharts')
     ) {
       this.props.onMouseLeave && this.props.onMouseLeave(props.activePipeline)
     }
@@ -41,10 +42,11 @@ class PipesPieChart extends React.Component {
   componentDidMount() {
     document.addEventListener('mousemove', this.onDocumentMouseMove)
     this.container = this.chart.container
-    containers.push(this.container)
+    if (this.container)
+      containers.push(this.container)
   }
 
-  componentDidUnmount() {
+  componentWillUnmount() {
     document.removeEventListener('mousemove', this.onDocumentMouseMove)
     containers.filter(c => c === this.container)
   }
