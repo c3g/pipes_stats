@@ -109,8 +109,6 @@ def generateStats(records):
       lambda a, b: indexByMonth[a['month']] - indexByMonth[b['month']]
     )
 
-    # printJSON({ 'map': indexByMonth, 'stats': statsByMonth })
-
     for record in records:
       month = getMonthYear(record[k.date])
       index = indexByMonth[month]
@@ -147,11 +145,12 @@ def getMonthsInRange(start, end):
   months = {}
 
   i = 0
-  current = start + relativedelta(months=i)
+  current = start
   while current < end:
     months[getMonthYear(current)] = i - 1
     current = start + relativedelta(months=i)
     i = i + 1
+  months[getMonthYear(current)] = i - 1
 
   return months
 
