@@ -9,7 +9,7 @@ class Checkbox extends React.Component {
     const { checked, children } = this.props
 
     return (
-      <div>
+      <div className='Checkbox'>
         <input type='checkbox'
           id={this.id}
           checked={checked}

@@ -28,7 +28,8 @@ class PipelineFilter extends React.Component {
   }
 
   render() {
-    const { pipelines } = this.props.params
+    const { isLoading, params } = this.props
+    const { pipelines } = params
 
     this.values = {}
 
@@ -38,9 +39,10 @@ class PipelineFilter extends React.Component {
 
       all.forEach(key => this.values[key] = selected.has(key))
     }
-
+    console.log(Object.keys(this.values).length)
     return (
       <MultiSelect
+        loading={isLoading && Object.keys(this.values).length === 0}
         values={this.values}
         onChange={this.onChange}
         onChangeAll={this.onChangeAll}

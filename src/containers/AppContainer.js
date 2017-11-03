@@ -2,9 +2,17 @@ import React from 'react'
 import { createStructuredSelector, createSelector } from 'reselect'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Grid, Row, Col } from 'react-bootstrap'
+import {
+  Grid,
+  Row,
+  Col,
+  Navbar,
+  Nav,
+  NavItem,
+  NavDropdown,
+  MenuItem,
+} from 'react-bootstrap'
 import cx from 'classname'
-
 import DateRange from 'components/DateRange'
 import MergeCheckbox from 'components/MergeCheckbox'
 import PipelineFilter from 'components/PipelineFilter'
@@ -32,58 +40,64 @@ class AppContainer extends React.Component {
     const colorMap = generateColorMap(byPipeline)
 
     return (
-      <Grid>
-        <Row>
-          <Col xs={12}>
-            { ui.isLoading && 'Loading' }
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={6}>
-            <DateRange />
-          </Col>
-          <Col xs={2}>
-            <MergeCheckbox />
-          </Col>
-          <Col xs={4}>
-            <PipelineFilter />
-          </Col>
-        </Row>
-        <Row className={cx({ 'is-loading': ui.isLoading })}>
-          <Col xs={6}>
-            <PipesPieChart
-              data={samplesChartData}
-              colors={colorMap}
-              activePipeline={activePipeline}
-              onMouseEnter={this.props.setActivePipeline}
-              onMouseLeave={this.props.removeActivePipeline}
-            />
-          </Col>
-          <Col xs={6}>
-            <PipesPieChart
-              data={submissionsChartData}
-              colors={colorMap}
-              activePipeline={activePipeline}
-              onMouseEnter={this.props.setActivePipeline}
-              onMouseLeave={this.props.removeActivePipeline}
-            />
-          </Col>
-        </Row>
-        <Row className={cx({ 'is-loading': ui.isLoading })}>
-          <Col xs={12}>
-            <PipesLineChart
-              data={lineChartData}
-              colors={colorMap}
-              activePipeline={activePipeline}
-            />
-          </Col>
-        </Row>
-        <Row className={cx({ 'is-loading': ui.isLoading })}>
-          <Col xs={12}>
-            <PipesTable data={tableData} />
-          </Col>
-        </Row>
-      </Grid>
+      <div className='App'>
+
+        <Navbar fixedTop>
+          <Navbar.Header>
+            <Navbar.Brand>
+              <a href="#">Pipelines Stats</a>
+            </Navbar.Brand>
+          </Navbar.Header>
+          <Navbar.Collapse>
+            <Navbar.Form pullLeft>
+              <DateRange />
+            </Navbar.Form>
+            <Navbar.Form pullLeft>
+              <PipelineFilter />
+            </Navbar.Form>
+            <Navbar.Form pullLeft>
+              <MergeCheckbox />
+            </Navbar.Form>
+          </Navbar.Collapse>
+        </Navbar>
+
+        <Grid className='App-content'>
+          <Row className={cx({ 'is-loading': ui.isLoading })}>
+            <Col xs={6}>
+              <PipesPieChart
+                data={samplesChartData}
+                colors={colorMap}
+                activePipeline={activePipeline}
+                onMouseEnter={this.props.setActivePipeline}
+                onMouseLeave={this.props.removeActivePipeline}
+              />
+            </Col>
+            <Col xs={6}>
+              <PipesPieChart
+                data={submissionsChartData}
+                colors={colorMap}
+                activePipeline={activePipeline}
+                onMouseEnter={this.props.setActivePipeline}
+                onMouseLeave={this.props.removeActivePipeline}
+              />
+            </Col>
+          </Row>
+          <Row className={cx({ 'is-loading': ui.isLoading })}>
+            <Col xs={12}>
+              <PipesLineChart
+                data={lineChartData}
+                colors={colorMap}
+                activePipeline={activePipeline}
+              />
+            </Col>
+          </Row>
+          <Row className={cx({ 'is-loading': ui.isLoading })}>
+            <Col xs={12}>
+              <PipesTable data={tableData} />
+            </Col>
+          </Row>
+        </Grid>
+      </div>
     )
   }
 }

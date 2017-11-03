@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classname';
 
+import Icon from 'components/Icon'
+
 class MultiSelect extends Component {
   constructor(props) {
     super(props)
@@ -33,7 +35,7 @@ class MultiSelect extends Component {
   }
 
   render() {
-    const { values, onChange } = this.props
+    const { values, onChange, loading } = this.props
     const { visible } = this.state
 
     const checkedValues = Object.keys(values).filter(v => values[v])
@@ -46,8 +48,8 @@ class MultiSelect extends Component {
             href='#'
             className='MultiSelect-item'
             onClick={() => onChange(value, !values[value])} >
-          <i
-            className={values[value] ? 'fa fa-check-square-o' : 'fa fa-square-o'}
+          <Icon
+            name={values[value] ? 'check-square-o' : 'square-o'}
           />&nbsp;
           { value }
         </a>
@@ -64,12 +66,13 @@ class MultiSelect extends Component {
           type='button'
           className='MultiSelect-button btn btn-default dropdown-toggle'
           onClick={this.onClick}
+          disabled={loading}
         >
           <span>
-            { checkedValues.join(', ') || 'No value selected' }
+            { loading ? 'Loading...' : (checkedValues.join(', ') || 'No value selected') }
           </span>
         </button>
-        <i className='MultiSelect-icon glyphicon glyphicon-chevron-down' />
+        <Icon className='MultiSelect-icon' name={ loading ? 'spinner fa-spin' : 'chevron-down' } />
         <ul
           ref='list'
           className='MultiSelect-list dropdown-menu'

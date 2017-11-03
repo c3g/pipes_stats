@@ -3,9 +3,12 @@ import { injectGlobal } from 'styled-components'
 /* eslint no-unused-expressions: 0 */
 injectGlobal`
 html,
-body {
+body,
+#root,
+#root>div {
   height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -16,12 +19,21 @@ body {
 
 .is-loading {
   opacity: 0.6;
+  pointer-events: none;
+}
+
+
+.Checkbox {
+  height: 34px;
+  line-height: 34px;
+  text-align: left;
 }
 
 
 .MultiSelect {
   display: inline-block;
-  max-width: 100%;
+  /*max-width: 100%;*/
+  width: 186px;
 }
 .MultiSelect-list {
   max-height: 400px;
@@ -41,6 +53,22 @@ body {
 .MultiSelect-item > i {
     min-width: 20px;
 }
+
+
+.App {
+  display: inline-block;
+  padding-top: 51px;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+.App-content {
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
 
 td.key {
   font-weight: bold;

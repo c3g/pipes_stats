@@ -10,7 +10,6 @@ function Routes() {
   return (
     <Router>
       <Container>
-        <Header />
         <Route path="/" component={AppContainer} />
       </Container>
     </Router>
