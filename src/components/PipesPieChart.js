@@ -31,8 +31,7 @@ class PipesPieChart extends React.Component {
     // XXX: we're using recharts internal .container here
     if (props.activePipeline
       && !containers.some(c => c.contains(target))
-      && target.className !== 'recharts-sector'
-      && target.className.baseVal !== 'recharts-sector'
+      && !String(target.className.baseVal || target.className).includes('recharts')
     ) {
       this.props.onMouseLeave && this.props.onMouseLeave(props.activePipeline)
     }
