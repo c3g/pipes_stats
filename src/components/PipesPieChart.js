@@ -50,12 +50,10 @@ class PipesPieChart extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const shouldUpdate = ((this.previousData.length === 0 || this.previousData !== nextProps.data)
-        || (this.activePipeline !== nextProps.activePipeline))
-
-    console.log(shouldUpdate, { previous: this.activePipeline, new: nextProps.activePipeline })
-
-    return shouldUpdate
+    return (
+         (this.previousData.length === 0 || this.previousData !== nextProps.data)
+      || (this.activePipeline !== nextProps.activePipeline)
+    )
   }
 
   render() {
