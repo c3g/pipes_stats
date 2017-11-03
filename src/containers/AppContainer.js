@@ -88,6 +88,8 @@ class AppContainer extends React.Component {
                 data={lineChartData}
                 colors={colorMap}
                 activePipeline={activePipeline}
+                onMouseEnter={this.props.setActivePipeline}
+                onMouseLeave={this.props.removeActivePipeline}
               />
             </Col>
           </Row>

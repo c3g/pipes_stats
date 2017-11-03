@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts'
 
+import AutoSizer from 'components/AutoSizer'
 import hexToRGBA from 'utils/hexToRGBA'
 
 const PopoverList = styled.ul`
@@ -11,44 +12,65 @@ const PopoverList = styled.ul`
   column-width: 200px;
 `
 
-function PipesLineChart({
-    data,
-    colors,
-    activePipeline
-  }) {
+export default class PipesLineChart extends React.Component {
+  onMouseEnter = (name) => {
+    this.props.onMouseEnter && this.props.onMouseEnter(name)
+  }
 
-  const keys = data.length ? Object.keys(data[0]).filter(k => k !== 'month') : []
+  onMouseLeave = (name) => {
+    this.props.onMouseLeave && this.props.onMouseLeave(name)
+  }
 
-  return (
-    <LineChart
-        width={1000}
-        height={400}
-        data={data}
-        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+  onMouseMove = (name) => {
+    if (this.props.activePipeline !== name)
+      this.props.onMouseEnter && this.props.onMouseEnter(name)
+  }
 
-      <CartesianGrid strokeDasharray='3 3' />
-      <XAxis dataKey='month' tickCounts={1} />
-      <YAxis type='number' domain={[0, 'dataMax || 1000']}/>
-      <Tooltip />
+  render() {
+    const { data, colors, activePipeline } = this.props
+    const keys = data.length ? Object.keys(data[0]).filter(k => k !== 'month') : []
+
+    return (
+      <AutoSizer disableHeight>
       {
-        keys.map((key, i) => {
+        ({ width }) =>
+          <LineChart
+              width={width}
+              height={400}
+              data={data}
+              margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
 
-          const isActive = activePipeline === key
+            <CartesianGrid strokeDasharray='3 3' />
+            <XAxis dataKey='month' tickCounts={1} />
+            <YAxis type='number' domain={[0, 'dataMax || 1000']}/>
+            <Tooltip />
+            {
+              keys.map((key, i) => {
 
-          return <Line
-            type='linear'
-            key={key}
-            dataKey={key}
-            stroke={ (activePipeline === undefined) ? colors[key] :
-                                           isActive ? colors[key] : hexToRGBA(colors[key], 0.3)
+                const isActive = activePipeline === key
+
+                return (
+                  <Line
+                    type='linear'
+                    key={key}
+                    dataKey={key}
+                    stroke={ (activePipeline === undefined) ? colors[key] :
+                                                  isActive ? colors[key] : hexToRGBA(colors[key], 0.3)
+                    }
+                    strokeWidth={isActive ? 2 : 1}
+                    dot={false}
+                    onMouseEnter={() => this.onMouseEnter(key)}
+                    onMouseLeave={() => this.onMouseLeave(key)}
+                    onMouseMove={() => this.onMouseMove(key)}
+                  />
+                )
+              })
             }
-            strokeWidth={isActive ? 2 : 1}
-            dot={false}
-          />
-        })
+          </LineChart>
       }
-    </LineChart>
-  )
+      </AutoSizer> 
+    )
+  }
 }
 
 function ChartTooltip(props) {
@@ -78,4 +100,3 @@ function ChartTooltip(props) {
   )
 }
 
-export default PipesLineChart
