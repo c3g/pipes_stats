@@ -4,6 +4,8 @@ import { PieChart, Pie, Cell, Sector, Tooltip } from 'recharts'
 
 import hexToRGBA from 'utils/hexToRGBA'
 
+const OPACITY = 0.5
+
 let containers = []
 
 class PipesPieChart extends React.Component {
@@ -76,7 +78,7 @@ class PipesPieChart extends React.Component {
           dataKey='value'
           innerRadius={40}
           outerRadius={80}
-          label={renderLabel}
+          label={props => renderLabel(props, activePipeline)}
           labelLine={false}
           isAnimationActive={true}
           onMouseEnter={this.onMouseEnter}
@@ -88,7 +90,7 @@ class PipesPieChart extends React.Component {
           {
             data.map((entry, i) =>
               <Cell fill={activePipeline === undefined ? colors[entry.name] :
-                         entry.name === activePipeline ? colors[entry.name] : hexToRGBA(colors[entry.name], 0.5)
+                         entry.name === activePipeline ? colors[entry.name] : hexToRGBA(colors[entry.name], OPACITY)
               }/>
             )
           }
@@ -98,7 +100,7 @@ class PipesPieChart extends React.Component {
   }
 }
 
-function renderLabel(props) {
+function renderLabel(props, activePipeline) {
   const RADIAN = Math.PI / 180;
   const {
     cx,
@@ -123,7 +125,7 @@ function renderLabel(props) {
   const ey = my;
   const textAnchor = cos >= 0 ? 'start' : 'end';
 
-  const name = payload.name === '' ? '(Empty)' : payload.name
+  const name = !payload.name ? '(Empty)' : payload.name
 
   const textStyle = { fontWeight: payload.selected ? 'bold' : 'normal' }
   if (payload.name === 'null')
@@ -131,7 +133,10 @@ function renderLabel(props) {
 
   const angle = endAngle - startAngle
 
-  if (angle < 7)
+  const isActive = payload.name === activePipeline
+  const someActive = activePipeline !== undefined
+
+  if (angle < 7 && !isActive)
     return null
 
   return (
@@ -153,7 +158,7 @@ function renderLabel(props) {
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none'/>
       <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3}
         textAnchor={textAnchor}
-        fill='#333'
+        fill={ `rgba(51, 51, 51, ${ isActive ? 1 : someActive ? OPACITY : 1 })` }
         style={textStyle}
       >
         { name } {`(${ payload.value })`}
