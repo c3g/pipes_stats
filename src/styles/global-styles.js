@@ -16,6 +16,22 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  z-index: 1500;
+  pointer-events: none;
+  opacity: 0;
+  transition: all .5s linear;
+}
+body.loading::after {
+  opacity: 1;
+}
 
 .is-loading {
   opacity: 0.6;

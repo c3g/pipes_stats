@@ -24,6 +24,10 @@ import weakMapMemoize from 'utils/weakMapMemoize'
 import { fetchData, setActivePipeline, removeActivePipeline } from 'actions'
 
 class AppContainer extends React.Component {
+  componentDidMount() {
+    document.body.className = ''
+  }
+
   render() {
 
     const { ui, stats } = this.props

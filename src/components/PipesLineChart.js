@@ -1,6 +1,6 @@
 import React from 'react'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts'
-import { getPresentationAttributes } from 'recharts/src/util/ReactUtils.js'
+import { getPresentationAttributes } from 'recharts/lib/util/ReactUtils.js'
 import classNames from 'classname'
 
 import AutoSizer from 'components/AutoSizer'
