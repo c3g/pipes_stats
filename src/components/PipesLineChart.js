@@ -1,16 +1,20 @@
 import React from 'react'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts'
+import { getPresentationAttributes } from 'recharts/src/util/ReactUtils.js'
+import classNames from 'classname'
 
 import AutoSizer from 'components/AutoSizer'
 import hexToRGBA from 'utils/hexToRGBA'
 
 export default class PipesLineChart extends React.Component {
   onMouseEnter = (name) => {
-    this.props.onMouseEnter && this.props.onMouseEnter(name)
+    if (this.props.activePipeline !== name)
+      this.props.onMouseEnter && this.props.onMouseEnter(name)
   }
 
   onMouseLeave = (name) => {
-    this.props.onMouseLeave && this.props.onMouseLeave(name)
+    if (this.props.activePipeline === name)
+      this.props.onMouseLeave && this.props.onMouseLeave(name)
   }
 
   onMouseMove = (name) => {
@@ -41,6 +45,10 @@ export default class PipesLineChart extends React.Component {
 
                 const isActive = activePipeline === key
 
+                const onMouseEnter = () => this.onMouseEnter(key)
+                const onMouseLeave = () => this.onMouseLeave(key)
+                const onMouseMove  = () => this.onMouseMove(key)
+
                 return (
                   <Line
                     type='linear'
@@ -51,9 +59,15 @@ export default class PipesLineChart extends React.Component {
                     }
                     strokeWidth={isActive ? 2 : 1}
                     dot={false}
-                    onMouseEnter={() => this.onMouseEnter(key)}
-                    onMouseLeave={() => this.onMouseLeave(key)}
-                    onMouseMove={() => this.onMouseMove(key)}
+                    activeDot={
+                      <ActiveDot activePipeline={activePipeline}
+                        onMouseEnter={onMouseEnter}
+                        onMouseLeave={onMouseLeave}
+                      />
+                    }
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                    onMouseMove={onMouseMove}
                   />
                 )
               })
@@ -107,4 +121,26 @@ const ChartTooltip  = (props) => {
 function monthToLabel(month) {
   const date = new Date(month)
   return date.toLocaleString('en-US', { year: 'numeric', month: 'long' })
+}
+
+const ActiveDot = (props) => {
+  const { cx, cy, r, className, dataKey, activePipeline } = props
+  const layerClass = classNames('recharts-dot', className)
+
+  if (cx === +cx && cy === +cy && r === +r) {
+
+    return (
+      <circle
+        {...getPresentationAttributes(props)}
+        onMouseOver={props.onMouseEnter}
+        onMouseOut={props.onMouseLeave}
+        className={layerClass}
+        cx={cx}
+        cy={cy}
+        r={r}
+      />
+    )
+  }
+
+  return null
 }
