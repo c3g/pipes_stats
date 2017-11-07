@@ -33,6 +33,9 @@ body {
   text-align: left;
 }
 
+.Icon {
+  margin-right: 0.5em;
+}
 
 .MultiSelect {
   display: inline-block;
@@ -59,6 +62,19 @@ body {
     min-width: 20px;
 }
 
+.DatePicker.input-group {
+  width: 186px;
+}
+.DatePicker td {
+  border-radius: 5px !important;
+}
+.DatePicker td.text-muted {
+  opacity: 0.6;
+}
+.DatePicker td:not(.text-muted):not(.bg-primary):hover {
+  background-color: #eee;
+}
+
 
 .App {
   display: inline-block;
@@ -66,6 +82,9 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+}
+.App-title {
+  font-weight: bold;
 }
 .App-content {
   height: 100%;

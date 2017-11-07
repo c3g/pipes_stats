@@ -13,7 +13,7 @@ import {
   MenuItem,
 } from 'react-bootstrap'
 import cx from 'classname'
-import DateRange from 'components/DateRange'
+import { DateFrom, DateTo } from 'components/DateRange'
 import MergeCheckbox from 'components/MergeCheckbox'
 import PipelineFilter from 'components/PipelineFilter'
 import PipesLineChart from 'components/PipesLineChart'
@@ -45,12 +45,15 @@ class AppContainer extends React.Component {
         <Navbar fixedTop>
           <Navbar.Header>
             <Navbar.Brand>
-              <a href="#">Pipelines Stats</a>
+              <span className='App-title'>Pipelines Stats</span>
             </Navbar.Brand>
           </Navbar.Header>
           <Navbar.Collapse>
             <Navbar.Form pullLeft>
-              <DateRange />
+              <DateFrom />
+            </Navbar.Form>
+            <Navbar.Form pullLeft>
+              <DateTo />
             </Navbar.Form>
             <Navbar.Form pullLeft>
               <PipelineFilter />
