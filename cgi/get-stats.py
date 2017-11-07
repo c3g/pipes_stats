@@ -5,7 +5,7 @@ import sys
 import json
 import cgi
 import re
-import dateutil.parser
+from time import time
 from dateutil.relativedelta import relativedelta
 from datetime import date, datetime
 from utils import db, fetchOne, printJSON, printError
@@ -67,8 +67,8 @@ def generateStats(records):
   Generate stats by pipeline by month for given records
   """
   statsByPipeline = {}
-  minDate = dateutil.parser.parse(records[0][k.date])
-  maxDate = dateutil.parser.parse(records[0][k.date])
+  minDate = parseDate(records[0][k.date])
+  maxDate = parseDate(records[0][k.date])
 
   totalSamples = 0
   totalSubmissions = len(records)
@@ -86,13 +86,12 @@ def generateStats(records):
 
     # Also keep in memory the extreme dates
 
-    date = dateutil.parser.parse(record[k.date])
+    date = parseDate(record[k.date])
 
     if date < minDate:
       minDate = date
     if date > maxDate:
       maxDate = date
-
 
   # Then, split each pipeline records by month
 
@@ -135,7 +134,7 @@ def generateStats(records):
 
 def getMonthYear(date):
   if type(date) != datetime:
-    date = dateutil.parser.parse(date)
+    return date[0:4] + '-' + date[5:7].rjust(2, '0')
   return str(date.year) + '-' + str(date.month).rjust(2, '0')
 
 def getMonthsInRange(start, end):
@@ -159,7 +158,14 @@ def get(args, key):
     return args[key].value
   return None
 
-
+def parseDate(date):
+  """
+  Parses a datetime in format "2017-10-31T12:22:30-04:00"
+  """
+  year  = int(date[0:4])
+  month = int(date[5:7])
+  day   = int(date[8:10])
+  return datetime(year, month, day)
 
 
 if __name__ == "__main__":
