@@ -1,16 +1,8 @@
 import React from 'react'
-import styled from 'styled-components'
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts'
 
 import AutoSizer from 'components/AutoSizer'
 import hexToRGBA from 'utils/hexToRGBA'
-
-const PopoverList = styled.ul`
-  list-style: none;
-  padding: 0;
-  column-count: 3;
-  column-width: 200px;
-`
 
 export default class PipesLineChart extends React.Component {
   onMouseEnter = (name) => {
@@ -43,7 +35,7 @@ export default class PipesLineChart extends React.Component {
             <CartesianGrid strokeDasharray='3 3' />
             <XAxis dataKey='month' tickCounts={1} />
             <YAxis type='number' domain={[0, 'dataMax || 1000']}/>
-            <Tooltip />
+            <Tooltip content={<ChartTooltip activePipeline={activePipeline} />}/>
             {
               keys.map((key, i) => {
 
@@ -73,30 +65,46 @@ export default class PipesLineChart extends React.Component {
   }
 }
 
-function ChartTooltip(props) {
-  const { active, payload, label, coordinate } = props
+const compareValue = (a, b) => b.value - a.value
 
-  if (!active || !payload)
-    return null
+const ChartTooltip  = (props) => {
+  const { active, activePipeline } = props;
 
-  console.log(props)
-  return (
-    <div className='popover fade in right chart-popover'
-        style={{ transform: `translate(${coordinate.x}, ${coordinate.y})` }}>
-      <div className='popover-title'>{ label }</div>
-      <div className='popover-content'>
-        <PopoverList>
+  if (active) {
+    const { payload, label } = props;
+
+    const items = payload.filter(item => item.value !== 0).sort(compareValue)
+
+    return (
+      <div className='chart-popover'>
+        <div className='label'>{monthToLabel(label)}</div>
+        <div className='intro'>{monthToLabel(label)}</div>
+        <div className='desc'>
           {
-            payload.map(item =>
-              <li>
-                <span className='square' style={{ backgroundColor: item.color }}/>
-                { `${item.name} (${item.value})` }
-              </li>
-            )
+            items.length === 0 &&
+              <div className='empty'>No entries for this month</div>
           }
-        </PopoverList>
+          <ul>
+            {
+              items.map(item =>
+                <li className={ 'item ' + (item.name === activePipeline ? 'active' : '') }>
+                  <span className='color' style={{ backgroundColor: item.color }}/>
+                  <span className='name'>{ item.name }</span>
+                  <span className='value monospace'>{ item.value }</span>
+                </li>
+              )
+            }
+          </ul>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  return null
 }
 
+/** @param {string} date - format: yyyy-mm */
+function monthToLabel(month) {
+  const date = new Date(month)
+  return date.toLocaleString('en-US', { year: 'numeric', month: 'long' })
+}

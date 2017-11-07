@@ -22,6 +22,10 @@ body {
   pointer-events: none;
 }
 
+.monospace {
+  font-family: 'Menlo', 'dejavu sans mono', 'Consolas', 'Lucida Console', monospace;
+  font-size: 0.9em;
+}
 
 .Checkbox {
   height: 34px;
@@ -104,14 +108,47 @@ td.key {
 .chart-popover {
   display: block !important;
   max-width: unset;
+  max-height: 400px;
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
-
-.square {
+.chart-popover .label {
+  display: none;
+}
+.chart-popover .intro {
+  padding: 0.5em 0;
+  font-weight: bold;
+}
+.chart-popover .desc {
+  padding: 0 1em;
+}
+.chart-popover ul {
+  text-align: left;
+  height: 100%;
+  list-style: none;
+  padding: 0;
+  column-count: 3;
+  column-width: 250px;
+}
+.chart-popover .item {
+  padding: 0 0 0 1em;
+}
+.chart-popover .item.active {
+  font-weight: bold;
+}
+.chart-popover .item .value {
+  opacity: 0.6;
+  float: right;
+}
+.chart-popover .item .color {
   display: inline-block;
-  border: 1px solid black;
   width:  0.6em;
   height: 0.6em;
   margin-right: 0.4em;
+  border-radius: 5px;
 }
+
+
 `
 // vim: ft=css
