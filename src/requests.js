@@ -9,7 +9,7 @@ const { CancelToken } = axios
 
 window.axios = axios
 
-const BASE_URL = '/cgi'
+const BASE_URL = '/cgi-bin'
 
 function fetchAPI(url, params, options = {}) {
   let { method = 'get', ...other } = options
