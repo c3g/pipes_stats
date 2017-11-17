@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classname';
 
-import Icon from 'components/Icon'
+import Icon from './Icon'
 
 class MultiSelect extends Component {
   constructor(props) {

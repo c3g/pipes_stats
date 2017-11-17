@@ -2,8 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 import { PieChart, Pie, Cell, Sector, Tooltip } from 'recharts'
 
-import AutoSizer from 'components/AutoSizer'
-import hexToRGBA from 'utils/hexToRGBA'
+import AutoSizer from './AutoSizer'
+import hexToRGBA from '../utils/hexToRGBA'
 
 const OPACITY_PIE  = 0.5
 const OPACITY_TEXT = 0.3

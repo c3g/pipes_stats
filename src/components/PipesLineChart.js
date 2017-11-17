@@ -3,8 +3,8 @@ import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'r
 import { getPresentationAttributes } from 'recharts/lib/util/ReactUtils.js'
 import classNames from 'classname'
 
-import AutoSizer from 'components/AutoSizer'
-import hexToRGBA from 'utils/hexToRGBA'
+import AutoSizer from './AutoSizer'
+import hexToRGBA from '../utils/hexToRGBA'
 
 export default class PipesLineChart extends React.Component {
   onMouseEnter = (name) => {

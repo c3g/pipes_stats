@@ -1,5 +1,5 @@
 import React from 'react'
-import createDetectElementResize from 'utils/detectElementResize'
+import createDetectElementResize from '../utils/detectElementResize'
 
 /**
  * AutoSizer

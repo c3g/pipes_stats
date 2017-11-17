@@ -13,15 +13,15 @@ import {
   MenuItem,
 } from 'react-bootstrap'
 import cx from 'classname'
-import { DateFrom, DateTo } from 'components/DateRange'
-import MergeCheckbox from 'components/MergeCheckbox'
-import PipelineFilter from 'components/PipelineFilter'
-import PipesLineChart from 'components/PipesLineChart'
-import PipesPieChart from 'components/PipesPieChart'
-import PipesTable from 'components/PipesTable'
+import { DateFrom, DateTo } from '../components/DateRange'
+import MergeCheckbox from '../components/MergeCheckbox'
+import PipelineFilter from '../components/PipelineFilter'
+import PipesLineChart from '../components/PipesLineChart'
+import PipesPieChart from '../components/PipesPieChart'
+import PipesTable from '../components/PipesTable'
 
-import weakMapMemoize from 'utils/weakMapMemoize'
-import { fetchData, setActivePipeline, removeActivePipeline } from 'actions'
+import weakMapMemoize from '../utils/weakMapMemoize'
+import { fetchData, setActivePipeline, removeActivePipeline } from '../actions'
 
 class AppContainer extends React.Component {
   componentDidMount() {

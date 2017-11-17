@@ -3,7 +3,7 @@
  */
 
 import axios from 'axios'
-import queryString from 'utils/queryString'
+import queryString from './utils/queryString'
 
 const { CancelToken } = axios
 

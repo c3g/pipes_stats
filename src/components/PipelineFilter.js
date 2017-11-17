@@ -2,9 +2,9 @@ import React from 'react'
 import { createStructuredSelector, createSelector } from 'reselect'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import MultiSelect from 'components/MultiSelect'
 
-import { setPipelines } from 'actions'
+import MultiSelect from './MultiSelect'
+import { setPipelines } from '../actions'
 
 class PipelineFilter extends React.Component {
 

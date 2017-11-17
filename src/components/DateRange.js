@@ -4,10 +4,10 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Grid, Row, Col, InputGroup } from 'react-bootstrap'
 
-import Icon from 'components/Icon'
-import DatePicker from 'components/DatePicker'
+import Icon from './Icon'
+import DatePicker from './DatePicker'
 
-import { setDateFrom, setDateTo } from 'actions'
+import { setDateFrom, setDateTo } from '../actions'
 
 const { Addon } = InputGroup
 

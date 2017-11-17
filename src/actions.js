@@ -1,8 +1,8 @@
-import * as k from 'constants/ActionTypes'
 import { createAction } from 'redux-actions'
 
-import { fetchStats, isCancel } from 'requests'
-import { normalizeData } from 'models'
+import * as k from './constants/ActionTypes'
+import { fetchStats, isCancel } from './requests'
+import { normalizeData } from './models'
 
 function reloadData(fn) {
   return function(...args) {

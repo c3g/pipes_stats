@@ -1,4 +1,4 @@
-import colors from 'constants/colors'
+import colors from './constants/colors'
 
 export function normalizeData(data) {
   Object.entries(data.stats.byPipeline).forEach(([name, data]) => {
