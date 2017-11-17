@@ -3,7 +3,7 @@
  */
 
 import axios from 'axios'
-import queryString from './utils/queryString'
+import queryString from 'utils/queryString'
 
 const { CancelToken } = axios
 
@@ -17,26 +17,32 @@ function fetchAPI(url, params, options = {}) {
   let finalURL = BASE_URL + url
   let data = undefined
 
-  if (method === 'post' && params) data = params
+  if (method === 'post' && params)
+    data = params
 
-  if (method === 'get' && params) finalURL += `?${queryString(params)}`
+  if (method === 'get' && params)
+    finalURL += `?${queryString(params)}`
 
   const config = {
     method: method,
     url: finalURL,
     data: data,
-    ...other,
+    ...other
   }
 
   return axios(config).then(({ data }) => {
-    if (data.ok) return Promise.resolve(data.data)
-    else return Promise.reject(data.message)
+    if (data.ok)
+      return Promise.resolve(data.data)
+    else
+      return Promise.reject(data.message)
   })
 }
 
+
 let statsSource
 export function fetchStats(params) {
-  if (statsSource) statsSource.cancel()
+  if (statsSource)
+    statsSource.cancel()
   statsSource = CancelToken.source()
   return fetchAPI('/get-stats.py', params, { cancelToken: statsSource.token })
 }

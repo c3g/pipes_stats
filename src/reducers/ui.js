@@ -1,4 +1,4 @@
-import * as k from '../constants/ActionTypes'
+import * as k from 'constants/ActionTypes'
 
 const emptySet = new Set()
 
@@ -20,7 +20,7 @@ function getParams(state, { params, stats }) {
 
   return {
     ...params,
-    pipelines: { all, selected },
+    pipelines: { all, selected }
   }
 }
 
@@ -39,25 +39,19 @@ export default function uiReducer(state = initialState, action) {
       return { ...state, params: { ...state.params, to: action.payload } }
     case k.SET_MERGE:
       const newState = { ...state, params: { ...state.params, merge: action.payload } }
-      if (action.payload !== state.params.merge) newState.params.pipelines = { all: undefined, selected: emptySet }
+      if (action.payload !== state.params.merge)
+        newState.params.pipelines = { all: undefined, selected: emptySet }
       return newState
 
     case k.SET_PIPELINES:
-      return {
-        ...state,
-        params: {
-          ...state.params,
-          pipelines: {
-            ...state.params.pipelines,
-            selected: new Set(action.payload),
-          },
-        },
-      }
+      return { ...state, params: { ...state.params, pipelines: {
+                ...state.params.pipelines, selected: new Set(action.payload) } } }
 
     case k.SET_ACTIVE_PIPELINE:
       return { ...state, activePipeline: action.payload }
     case k.REMOVE_ACTIVE_PIPELINE:
-      if (state.activePipeline === action.payload) return { ...state, activePipeline: undefined }
+      if (state.activePipeline === action.payload)
+        return { ...state, activePipeline: undefined }
       return state
 
     default:
