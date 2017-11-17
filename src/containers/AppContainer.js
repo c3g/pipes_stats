@@ -2,26 +2,17 @@ import React from 'react'
 import { createStructuredSelector, createSelector } from 'reselect'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import {
-  Grid,
-  Row,
-  Col,
-  Navbar,
-  Nav,
-  NavItem,
-  NavDropdown,
-  MenuItem,
-} from 'react-bootstrap'
+import { Grid, Row, Col, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap'
 import cx from 'classname'
-import { DateFrom, DateTo } from 'components/DateRange'
-import MergeCheckbox from 'components/MergeCheckbox'
-import PipelineFilter from 'components/PipelineFilter'
-import PipesLineChart from 'components/PipesLineChart'
-import PipesPieChart from 'components/PipesPieChart'
-import PipesTable from 'components/PipesTable'
 
-import weakMapMemoize from 'utils/weakMapMemoize'
-import { fetchData, setActivePipeline, removeActivePipeline } from 'actions'
+import { DateFrom, DateTo } from '../components/DateRange'
+import MergeCheckbox from '../components/MergeCheckbox'
+import PipelineFilter from '../components/PipelineFilter'
+import PipesLineChart from '../components/PipesLineChart'
+import PipesPieChart from '../components/PipesPieChart'
+import PipesTable from '../components/PipesTable'
+import weakMapMemoize from '../utils/weakMapMemoize'
+import { fetchData, setActivePipeline, removeActivePipeline } from '../actions'
 
 class AppContainer extends React.Component {
   componentDidMount() {
@@ -29,12 +20,10 @@ class AppContainer extends React.Component {
   }
 
   render() {
-
     const { ui, stats } = this.props
     const { params, activePipeline } = ui
     const { selected } = params.pipelines
     const { byPipeline } = stats
-
 
     const samplesChartData = generatePieChartData(byPipeline, 'samples', selected)
     const submissionsChartData = generatePieChartData(byPipeline, 'submissions', selected)
@@ -44,12 +33,11 @@ class AppContainer extends React.Component {
     const colorMap = generateColorMap(byPipeline)
 
     return (
-      <div className='App'>
-
+      <div className="App">
         <Navbar fixedTop>
           <Navbar.Header>
             <Navbar.Brand>
-              <span className='App-title'>Pipelines Stats</span>
+              <span className="App-title">Pipelines Stats</span>
             </Navbar.Brand>
           </Navbar.Header>
           <Navbar.Collapse>
@@ -68,7 +56,7 @@ class AppContainer extends React.Component {
           </Navbar.Collapse>
         </Navbar>
 
-        <Grid className='App-content'>
+        <Grid className="App-content">
           <Row className={cx({ 'is-loading': ui.isLoading })}>
             <Col xs={6}>
               <h4>By Samples</h4>
@@ -113,7 +101,7 @@ class AppContainer extends React.Component {
   }
 }
 
-const generateColorMap = weakMapMemoize((byPipeline) => {
+const generateColorMap = weakMapMemoize(byPipeline => {
   const colorMap = {}
   Object.entries(byPipeline).forEach(([pipeline, data]) => {
     colorMap[pipeline] = data.color
@@ -123,8 +111,7 @@ const generateColorMap = weakMapMemoize((byPipeline) => {
 
 const generateLineChartData = weakMapMemoize((byPipeline, selected) => {
   const pipelines = Object.keys(byPipeline)
-  if (pipelines.length === 0)
-    return []
+  if (pipelines.length === 0) return []
 
   const data = byPipeline[pipelines[0]].months.map(stats => ({ month: stats.month }))
 
@@ -141,7 +128,8 @@ const generateLineChartData = weakMapMemoize((byPipeline, selected) => {
 
 const generatePieChartData = weakMapMemoize([WeakMap, Map, WeakMap], (byPipeline, property, selected) => {
   return Object.entries(byPipeline).map(([name, stats]) => ({
-    name, value: selected.has(name) ? stats[property] : 0
+    name,
+    value: selected.has(name) ? stats[property] : 0,
   }))
 })
 
@@ -150,8 +138,6 @@ const generateTableData = weakMapMemoize((byPipeline, selected) => {
     .filter(([name, stats]) => selected.has(name))
     .map(([name, stats]) => ({ name, ...stats }))
 })
-
-
 
 const mapStateToProps = createStructuredSelector({
   stats: createSelector(state => state.stats, statsState => statsState),

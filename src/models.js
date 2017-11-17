@@ -1,4 +1,4 @@
-import colors from 'constants/colors'
+import colors from './constants/colors'
 
 export function normalizeData(data) {
   Object.entries(data.stats.byPipeline).forEach(([name, data]) => {
@@ -8,5 +8,8 @@ export function normalizeData(data) {
 }
 
 function hash(name) {
-  return [].slice.call(name).map(c => c.charCodeAt(0)).reduce((acc, cur) => acc + cur, 0)
+  return [].slice
+    .call(name)
+    .map(c => c.charCodeAt(0))
+    .reduce((acc, cur) => acc + cur, 0)
 }

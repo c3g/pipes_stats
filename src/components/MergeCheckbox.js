@@ -2,9 +2,9 @@ import React from 'react'
 import { createStructuredSelector, createSelector } from 'reselect'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import Checkbox from 'components/Checkbox'
 
-import { setMerge } from 'actions'
+import Checkbox from './Checkbox'
+import { setMerge } from '../actions'
 
 function MergeCheckbox({ params, setMerge }) {
   return (
@@ -13,7 +13,6 @@ function MergeCheckbox({ params, setMerge }) {
     </Checkbox>
   )
 }
-
 
 const mapStateToProps = createStructuredSelector({
   isLoading: createSelector(state => state.ui.isLoading, uiState => uiState),

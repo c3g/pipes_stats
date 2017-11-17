@@ -1,4 +1,4 @@
-import * as k from 'constants/ActionTypes'
+import * as k from '../constants/ActionTypes'
 
 const initialState = {
   average: 0,

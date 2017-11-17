@@ -1,9 +1,11 @@
 import React from 'react'
-import { AppContainer } from 'containers'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import styled from 'styled-components'
+import { AppContainer } from '../containers'
 
-const Container = styled.div`text-align: center;`
+const Container = styled.div`
+  text-align: center;
+`
 
 function Routes() {
   return (
