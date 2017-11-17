@@ -29,7 +29,9 @@ class PipesPieChart extends React.Component {
   onDocumentMouseMove = (ev) => {
     const { target } = ev
     const { props, chart } = this
-    const className = String(target.className.baseVal || target.className)
+
+    const className = String((target.className !== undefined && target.className.baseVal) || target.className)
+
     // XXX: we're using recharts internal .container here
     if (props.activePipeline
       && !containers.some(c => c.contains(target))
