@@ -5,7 +5,7 @@ import { Provider } from 'react-redux'
 import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
-import './styles/global-styles'
+import './styles/global.css'
 import './styles/checkbox.css'
 
 import configureStore from './store'
@@ -33,9 +33,5 @@ if (module.hot) {
       </Provider>,
       document.getElementById('root')
     )
-  })
-  module.hot.accept('./styles/global-styles', () => {
-    /* eslint-disable global-require */
-    require('./styles/global-styles')
   })
 }
