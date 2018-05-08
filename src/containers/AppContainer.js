@@ -49,7 +49,9 @@ class AppContainer extends React.Component {
         <Navbar fixedTop>
           <Navbar.Header>
             <Navbar.Brand>
-              <span className='App-title'>GenPipes Usage Statistics</span>
+              <a className='App-title' href='https://bitbucket.org/mugqic/genpipes'>
+                GenPipes
+              </a>
             </Navbar.Brand>
           </Navbar.Header>
           <Navbar.Collapse>

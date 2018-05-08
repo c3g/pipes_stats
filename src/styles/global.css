@@ -56,7 +56,7 @@ body.loading::after {
   display: inline-flex !important;
   flex-direction: row;
   flex-wrap: nowrap;
-  width: 186px;
+  width: 200px;
 }
 .MultiSelect-label {
   line-height: 19px;
