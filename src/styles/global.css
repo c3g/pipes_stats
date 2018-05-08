@@ -50,9 +50,13 @@ body.loading::after {
 }
 
 .MultiSelect {
-  display: inline-block;
-  /*max-width: 100%;*/
+  display: inline-flex !important;
+  flex-direction: row;
+  flex-wrap: nowrap;
   width: 186px;
+}
+.MultiSelect-label {
+  line-height: 19px;
 }
 .MultiSelect-list {
   max-height: 400px;
@@ -64,6 +68,10 @@ body.loading::after {
   text-overflow: ellipsis;
   padding-right: 30px;
   text-align: left;
+}
+.MultiSelect.input-group .MultiSelect-button {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 .MultiSelect-icon {
   position: absolute;

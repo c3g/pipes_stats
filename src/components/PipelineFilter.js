@@ -42,6 +42,7 @@ class PipelineFilter extends React.Component {
     console.log(Object.keys(this.values).length)
     return (
       <MultiSelect
+        label='Filter'
         loading={isLoading}
         values={this.values}
         onChange={this.onChange}

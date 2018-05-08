@@ -35,7 +35,7 @@ class MultiSelect extends Component {
   }
 
   render() {
-    const { values, onChange, loading } = this.props
+    const { label, values, onChange, loading } = this.props
     const { visible } = this.state
 
     const checkedValues = Object.keys(values).filter(v => values[v])
@@ -59,8 +59,12 @@ class MultiSelect extends Component {
     return (
       <div
         ref='container'
-        className={cx('MultiSelect dropdown', { open: visible })}
+        className={cx('MultiSelect dropdown', { open: visible, 'input-group': Boolean(label) })}
       >
+        {
+          label &&
+            <span className='MultiSelect-label input-group-addon'>{ label }</span>
+        }
         <button
           ref='button'
           type='button'
