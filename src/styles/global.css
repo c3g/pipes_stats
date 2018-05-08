@@ -106,6 +106,11 @@ body.loading::after {
 }
 
 
+.PipesTable__number {
+  font-family: monospace;
+}
+
+
 td.key {
   font-weight: bold;
 }
@@ -120,8 +125,7 @@ td.key {
   display: flex !important;
   flex-direction: row;
 }
-.recharts-tooltip-item-name {
-}
+.recharts-tooltip-item-name {}
 .recharts-tooltip-item-separator {
   opacity: 0;
   flex: 1;

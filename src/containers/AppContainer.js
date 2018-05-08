@@ -49,7 +49,7 @@ class AppContainer extends React.Component {
         <Navbar fixedTop>
           <Navbar.Header>
             <Navbar.Brand>
-              <span className='App-title'>Pipelines Stats</span>
+              <span className='App-title'>GenPipes Usage Statistics</span>
             </Navbar.Brand>
           </Navbar.Header>
           <Navbar.Collapse>
