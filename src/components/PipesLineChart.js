@@ -39,6 +39,7 @@ export default class PipesLineChart extends React.Component {
             <CartesianGrid strokeDasharray='3 3' />
             <XAxis dataKey='month' tickCounts={1} />
             <YAxis type='number' domain={[0, 'dataMax || 1000']}/>
+            <Legend content={renderLegend} />
             <Tooltip content={<ChartTooltip activePipeline={activePipeline} />}/>
             {
               keys.map((key, i) => {
@@ -57,7 +58,7 @@ export default class PipesLineChart extends React.Component {
                     stroke={ (activePipeline === undefined) ? colors[key] :
                                                   isActive ? colors[key] : hexToRGBA(colors[key], 0.3)
                     }
-                    strokeWidth={isActive ? 2 : 1}
+                    strokeWidth={isActive ? 2 : 2}
                     dot={false}
                     activeDot={
                       <ActiveDot activePipeline={activePipeline}
@@ -78,6 +79,17 @@ export default class PipesLineChart extends React.Component {
     )
   }
 }
+
+function renderLegend(props) {
+  const { payload } = props
+
+  return (
+    <div style={{ color: '#888' }}>
+      Months
+    </div>
+  )
+}
+
 
 const compareValue = (a, b) => b.value - a.value
 
