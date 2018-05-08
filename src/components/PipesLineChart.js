@@ -34,12 +34,18 @@ export default class PipesLineChart extends React.Component {
               width={width}
               height={400}
               data={data}
-              margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+              margin={{ top: 5, right: 5, left: 20, bottom: 5 }}
+            >
 
             <CartesianGrid strokeDasharray='3 3' />
+
             <XAxis dataKey='month' tickCounts={1} />
-            <YAxis type='number' domain={[0, 'dataMax || 1000']}/>
-            <Legend content={renderLegend} />
+            <YAxis
+              label={{ value: 'Samples', angle: -90, position: 'left' }}
+              type='number'
+              domain={[0, 'dataMax || 1000']}
+            />
+
             <Tooltip content={<ChartTooltip activePipeline={activePipeline} />}/>
             {
               keys.map((key, i) => {
@@ -78,16 +84,6 @@ export default class PipesLineChart extends React.Component {
       </AutoSizer> 
     )
   }
-}
-
-function renderLegend(props) {
-  const { payload } = props
-
-  return (
-    <div style={{ color: '#888' }}>
-      Months
-    </div>
-  )
 }
 
 

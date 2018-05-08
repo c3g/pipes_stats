@@ -4,7 +4,7 @@ import { BootstrapTable as Table, TableHeaderColumn as Header } from 'react-boot
 
 function PipesTable({ data }) {
   return (
-    <Table data={data} className='PipesTable'>
+    <Table data={data} className='PipesTable' tableHeaderClass='PipesTable__header'>
       <Header dataSort dataField='name' isKey columnClassName='key'>Pipeline</Header>
       <Header
         dataSort

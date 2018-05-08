@@ -106,8 +106,17 @@ body.loading::after {
 }
 
 
+.PipesTable__header {
+  background-color: #f8f8f8;
+  border-radius: 5px;
+}
 .PipesTable__number {
   font-family: monospace;
+}
+
+
+.PipesLineChart__yLabel {
+  transform: rotate(90deg);
 }
 
 
