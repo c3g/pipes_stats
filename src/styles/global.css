@@ -39,15 +39,18 @@ body.loading::after {
   font-size: 0.9em;
 }
 
+
 .Checkbox {
   height: 34px;
   line-height: 34px;
   text-align: left;
 }
 
+
 .Icon {
   margin-right: 0.5em;
 }
+
 
 .MultiSelect {
   display: inline-flex !important;
@@ -82,6 +85,7 @@ body.loading::after {
     min-width: 20px;
 }
 
+
 .DatePicker.input-group {
   width: 200px;
 }
@@ -111,6 +115,12 @@ body.loading::after {
   width: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
+  padding: 0 1em 6em;
+}
+
+
+.PipesLineChart__yLabel {
+  transform: rotate(90deg);
 }
 
 
@@ -121,14 +131,7 @@ body.loading::after {
 .PipesTable__number {
   font-family: monospace;
 }
-
-
-.PipesLineChart__yLabel {
-  transform: rotate(90deg);
-}
-
-
-td.key {
+.PipesTable td.key {
   font-weight: bold;
 }
 
@@ -142,7 +145,7 @@ td.key {
   display: flex !important;
   flex-direction: row;
 }
-.recharts-tooltip-item-name {}
+/* .recharts-tooltip-item-name {} */
 .recharts-tooltip-item-separator {
   opacity: 0;
   flex: 1;
