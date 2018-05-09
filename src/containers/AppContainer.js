@@ -71,44 +71,46 @@ class AppContainer extends React.Component {
         </Navbar>
 
         <Grid className='App-content'>
-          <Row className={cx({ 'is-loading': ui.isLoading })}>
-            <Col xs={6}>
-              <h4>By Samples</h4>
-              <PipesPieChart
-                data={samplesChartData}
-                colors={colorMap}
-                activePipeline={activePipeline}
-                onMouseEnter={this.props.setActivePipeline}
-                onMouseLeave={this.props.removeActivePipeline}
-              />
-            </Col>
-            <Col xs={6}>
-              <h4>By Submissions</h4>
-              <PipesPieChart
-                data={submissionsChartData}
-                colors={colorMap}
-                activePipeline={activePipeline}
-                onMouseEnter={this.props.setActivePipeline}
-                onMouseLeave={this.props.removeActivePipeline}
-              />
-            </Col>
-          </Row>
-          <Row className={cx({ 'is-loading': ui.isLoading })}>
-            <Col xs={12}>
-              <PipesLineChart
-                data={lineChartData}
-                colors={colorMap}
-                activePipeline={activePipeline}
-                onMouseEnter={this.props.setActivePipeline}
-                onMouseLeave={this.props.removeActivePipeline}
-              />
-            </Col>
-          </Row>
-          <Row className={cx({ 'is-loading': ui.isLoading })}>
-            <Col xs={12}>
-              <PipesTable data={tableData} />
-            </Col>
-          </Row>
+          <div className='App-inner'>
+            <Row className={cx({ 'is-loading': ui.isLoading })}>
+              <Col xs={6}>
+                <h4>By Samples</h4>
+                <PipesPieChart
+                  data={samplesChartData}
+                  colors={colorMap}
+                  activePipeline={activePipeline}
+                  onMouseEnter={this.props.setActivePipeline}
+                  onMouseLeave={this.props.removeActivePipeline}
+                />
+              </Col>
+              <Col xs={6}>
+                <h4>By Submissions</h4>
+                <PipesPieChart
+                  data={submissionsChartData}
+                  colors={colorMap}
+                  activePipeline={activePipeline}
+                  onMouseEnter={this.props.setActivePipeline}
+                  onMouseLeave={this.props.removeActivePipeline}
+                />
+              </Col>
+            </Row>
+            <Row className={cx({ 'is-loading': ui.isLoading })}>
+              <Col xs={12}>
+                <PipesLineChart
+                  data={lineChartData}
+                  colors={colorMap}
+                  activePipeline={activePipeline}
+                  onMouseEnter={this.props.setActivePipeline}
+                  onMouseLeave={this.props.removeActivePipeline}
+                />
+              </Col>
+            </Row>
+            <Row className={cx({ 'is-loading': ui.isLoading })}>
+              <Col xs={12}>
+                <PipesTable data={tableData} />
+              </Col>
+            </Row>
+          </div>
         </Grid>
       </div>
     )

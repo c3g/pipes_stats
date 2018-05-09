@@ -115,7 +115,9 @@ body.loading::after {
   width: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
-  padding: 0 1em 6em;
+}
+.App-inner {
+  padding-bottom: 6em;
 }
 
 
