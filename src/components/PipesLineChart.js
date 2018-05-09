@@ -92,6 +92,9 @@ const compareValue = (a, b) => b.value - a.value
 const ChartTooltip  = (props) => {
   const { active, activePipeline } = props;
 
+  if (!activePipeline)
+    return null
+
   if (active) {
     const { payload, label } = props;
 
