@@ -3,8 +3,12 @@ import pure from 'recompose/pure'
 import { BootstrapTable as Table, TableHeaderColumn as Header } from 'react-bootstrap-table'
 
 function PipesTable({ data }) {
+  const options = {
+    defaultSortName: 'samples',
+    defaultSortOrder: 'desc',
+  }
   return (
-    <Table data={data} className='PipesTable' tableHeaderClass='PipesTable__header'>
+    <Table className='PipesTable' tableHeaderClass='PipesTable__header' data={data} options={options}>
       <Header dataSort dataField='name' isKey columnClassName='key'>Pipeline</Header>
       <Header
         dataSort
@@ -36,7 +40,7 @@ function PipesTable({ data }) {
 }
 
 const PRECISION = 3
-const FACTOR = Math.pow(10, PRECISION)
+const FACTOR = 10 ** PRECISION
 
 function averageFormatter(cell, row) {
   const number = Math.round(cell * FACTOR) / FACTOR

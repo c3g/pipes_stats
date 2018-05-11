@@ -5,7 +5,6 @@ import sys
 import json
 import cgi
 import re
-from datetime import date
 from utils import db, printJSON
 from models import queries
 
@@ -15,8 +14,6 @@ with open(logFile) as f:
     logs = f.readlines()
 
 def main():
-    args = cgi.FieldStorage()
-
     db.execute(queries.dropTable)
     db.execute(queries.createTable)
 
@@ -36,10 +33,10 @@ def logToTuple(line):
     tokens = line.split('\t')
 
     if len(tokens) < 7:
-        printJSON({ 'ok': False,
-            'message': 'Error while converting line to tokens: not enough tokens.',
-            'tokens': tokens,
-            'line': line })
+        printJSON({'ok': False,
+                   'message': 'Error while converting line to tokens: not enough tokens.',
+                   'tokens': tokens,
+                   'line': line})
 
     date            = tokens[0]
     request_ip      = removeKeyName(tokens[1])

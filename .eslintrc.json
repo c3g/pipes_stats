@@ -16,16 +16,9 @@
     "DEBUG": false
   },
   "rules": {
-    "react/jsx-filename-extension": [
-      1,
-      {
-        "extensions": [".js", ".jsx"]
-      }
-    ],
-    "no-unused-vars": [
-      "error",
-      { "args": "none" }
-    ],
+    "react/jsx-filename-extension": [ 1, { "extensions": [".js", ".jsx"] } ],
+    "react/prop-types": [ "warn" ],
+    "no-unused-vars": [ "error", { "args": "none" } ],
     "prefer-template": "off",
     "import/no-extraneous-dependencies": 0,
     "import/no-unresolved": 0,
