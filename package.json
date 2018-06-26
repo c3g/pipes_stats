@@ -30,8 +30,6 @@
     "styled-components": "^2.0.0"
   },
   "devDependencies": {
-    "node-plop": "^0.5.5",
-    "plop": "^1.7.4",
     "eslint-config-prettier": "^2.5.0",
     "lint-staged": "^4.2.1",
     "prettier": "^1.7.0",
@@ -54,8 +52,7 @@
     "precommit": "lint-staged",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
     "lint": "eslint **/*.js --quiet",
-    "lint-fix": "eslint --fix",
-    "generate": "plop --plopfile generators/index.js"
+    "lint-fix": "eslint --fix"
   },
   "proxy": "http://localhost:8080",
   "lint-staged": {
