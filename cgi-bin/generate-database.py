@@ -1,9 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
 import os
-import sys
-import json
-import cgi
 import re
 from utils import db, printJSON
 from models import queries
@@ -12,6 +9,7 @@ logFile = os.getenv('PIPES_LOG')
 
 with open(logFile) as f:
     logs = f.readlines()
+
 
 def main():
     db.execute(queries.dropTable)
@@ -22,7 +20,7 @@ def main():
     db.executemany(queries.insertLog, values)
     db.commit()
 
-    printJSON({ })
+    printJSON({})
 
 
 def logToTuple(line):
@@ -78,6 +76,7 @@ def parseInt(string):
         return int(string)
     except:
         return 0
+
 
 if __name__ == "__main__":
     main()
