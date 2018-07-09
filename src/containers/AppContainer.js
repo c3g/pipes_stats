@@ -7,10 +7,6 @@ import {
   Row,
   Col,
   Navbar,
-  Nav,
-  NavItem,
-  NavDropdown,
-  MenuItem,
 } from 'react-bootstrap'
 import cx from 'classname'
 import { DateFrom, DateTo } from '../components/DateRange'
@@ -21,11 +17,23 @@ import PipesPieChart from '../components/PipesPieChart'
 import PipesTable from '../components/PipesTable'
 
 import weakMapMemoize from '../utils/weakMapMemoize'
-import { fetchData, setActivePipeline, removeActivePipeline } from '../actions'
+import { fetchData, setActivePipeline, removeActivePipeline, printPDF } from '../actions'
 
 class AppContainer extends React.Component {
   componentDidMount() {
     document.body.className = ''
+    document.body.addEventListener('keydown', this.onDocumentKeyDown)
+  }
+
+  componentWillUnmount() {
+    document.body.removeEventListener('keydown', this.onDocumentKeyDown)
+  }
+
+  onDocumentKeyDown = ev => {
+    if (ev.ctrlKey && ev.key === 'p') {
+      ev.preventDefault()
+      printPDF()
+    }
   }
 
   render() {
@@ -72,6 +80,7 @@ class AppContainer extends React.Component {
 
         <Grid className='App-content'>
           <div className='App-inner'>
+
             <Row className={cx({ 'is-loading': ui.isLoading })}>
               <Col xs={6}>
                 <h4>By Samples</h4>
@@ -94,6 +103,7 @@ class AppContainer extends React.Component {
                 />
               </Col>
             </Row>
+
             <Row className={cx({ 'is-loading': ui.isLoading })}>
               <Col xs={12}>
                 <PipesLineChart
@@ -105,6 +115,7 @@ class AppContainer extends React.Component {
                 />
               </Col>
             </Row>
+
             <Row className={cx({ 'is-loading': ui.isLoading })}>
               <Col xs={12}>
                 <PipesTable data={tableData} />

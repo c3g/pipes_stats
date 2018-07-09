@@ -43,3 +43,22 @@ export function fetchData() {
     .catch(err => !isCancel(err) && dispatch(receiveError(err)))
   }
 }
+
+export function printPDF() {
+  const previousElements = document.querySelectorAll('.print-only')
+  previousElements.forEach(node => {
+    document.body.removeChild(node)
+  })
+
+  const elements = document.querySelectorAll([
+    '.App-inner > .row:first-child > *',
+    '.App-inner > .row:not(:first-child)',
+  ].join(', '))
+  elements.forEach(node => {
+    const newNode = node.cloneNode(true)
+    newNode.className = 'print-only'
+    document.body.appendChild(newNode)
+  })
+
+  window.print()
+}

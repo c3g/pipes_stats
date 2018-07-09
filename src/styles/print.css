@@ -1,0 +1,36 @@
+/*
+ * print.css
+ * Copyright (C) 2018 rgregoir
+ *
+ * Distributed under terms of the MIT license.
+ */
+
+
+
+.print-only {
+  display: none;
+}
+
+@media print {
+  html,
+  body,
+  #root,
+  #root>div {
+    height: unset;
+    width: unset;
+    overflow: unset;
+  }
+
+  #root {
+    display: none;
+  }
+
+  * {
+    max-width: 100vw;
+  }
+
+  .print-only {
+    display: initial;
+    /* page-break-after: always; */
+  }
+}
