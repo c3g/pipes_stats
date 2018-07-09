@@ -5,8 +5,7 @@ import { Provider } from 'react-redux'
 import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
-import './styles/global.css'
-import './styles/checkbox.css'
+import './styles/index.js'
 
 import configureStore from './store'
 import Routes from './routes'
@@ -24,8 +23,9 @@ render(
 store.dispatch(fetchData())
 
 if (module.hot) {
+  /* eslint-disable global-require */
+
   module.hot.accept('./routes', () => {
-    /* eslint-disable global-require */
     const NextRoutes = require('./routes').default
     render(
       <Provider store={store}>
@@ -33,5 +33,9 @@ if (module.hot) {
       </Provider>,
       document.getElementById('root')
     )
+  })
+
+  module.hot.accept('./styles', () => {
+    require('./styles/index.js')
   })
 }
