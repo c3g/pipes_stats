@@ -20,6 +20,7 @@ keys = [
   , 'version'
   , 'steps'
   , 'nb_samples'
+  , 'md5'
 ]
 
 k = dotdict({})
@@ -34,6 +35,7 @@ k.pipeline        = 7
 k.version         = 8
 k.steps           = 9
 k.nb_samples      = 10
+k.md5             = 11
 
 queries = dotdict({})
 
@@ -54,11 +56,12 @@ queries.createTable = '''
       , version         varchar(100) null
       , steps           text         not null
       , nb_samples      integer      not null
+      , md5             varchar(33)  null unique
     );
 '''
 
 queries.insertLog = '''
-    INSERT INTO logs (
+    INSERT OR REPLACE INTO logs (
         date
       , request_ip
       , request_method
@@ -69,8 +72,9 @@ queries.insertLog = '''
       , version
       , steps
       , nb_samples
+      , md5
     )
-    VALUES (? , ? , ?, ? , ? , ? , ? , ? , ?, ?);
+    VALUES (? , ? , ?, ? , ? , ? , ? , ? , ?, ?, ?);
 '''
 
 queries.selectAllMerged = '''
@@ -85,6 +89,7 @@ queries.selectAllMerged = '''
          , version
          , steps
          , nb_samples
+         , md5
       FROM logs
      WHERE %s
     ;
@@ -102,6 +107,7 @@ queries.selectAll = '''
          , version
          , steps
          , nb_samples
+         , md5
       FROM logs
      WHERE %s
     ;

@@ -28,9 +28,9 @@ def logToTuple(line):
     Returns a tuple from a log line
     """
 
-    tokens = line.split('\t')
+    tokens = line.rstrip('\n').split('\t')
 
-    if len(tokens) < 7:
+    if len(tokens) < 9:
         printJSON({'ok': False,
                    'message': 'Error while converting line to tokens: not enough tokens.',
                    'tokens': tokens,
@@ -43,7 +43,8 @@ def logToTuple(line):
     hostname        = removeKeyName(tokens[4])
     host_ip         = removeKeyName(tokens[5])
     steps           = removeKeyName(tokens[7])
-    nb_samples      = parseInt(removeKeyName(tokens[8]).rstrip('\n'))
+    nb_samples      = parseInt(removeKeyName(tokens[8]))
+    md5             = removeKeyName(tokens[9]) if len(tokens) >= 10 else None
 
     pipelineAndVersion = removeKeyName(tokens[6])
     pipeline = match('^[^-]*', pipelineAndVersion)
@@ -59,7 +60,8 @@ def logToTuple(line):
         pipeline,
         version,
         steps,
-        nb_samples
+        nb_samples,
+        md5
     )
 
 def match(pattern, string):
