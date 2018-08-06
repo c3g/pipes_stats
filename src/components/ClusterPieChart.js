@@ -1,8 +1,8 @@
 import React from 'react'
-import styled from 'styled-components'
 import { PieChart, Pie, Cell, Sector, Tooltip } from 'recharts'
 
 import AutoSizer from './AutoSizer'
+import COLORS from '../constants/colors'
 import hexToRGBA from '../utils/hexToRGBA'
 
 const OPACITY_PIE  = 0.5
@@ -10,34 +10,36 @@ const OPACITY_TEXT = 0.3
 
 let containers = []
 
-class PipesPieChart extends React.Component {
-  state = {}
+class ClusterPieChart extends React.Component {
+  state = {
+    activeCluster: undefined,
+  }
 
   onMouseEnter = (data, index) => {
-    this.props.onMouseEnter && this.props.onMouseEnter(data.name)
+    this.setState({ activeCluster: data.name })
   }
 
   onMouseLeave = (data, index) => {
-    this.props.onMouseLeave && this.props.onMouseLeave(data.name)
+    this.setState({ activeCluster: undefined })
   }
 
   onMouseMove = (data, index) => {
-    if (this.props.activePipeline !== data.name)
-      this.props.onMouseEnter && this.props.onMouseEnter(data.name)
+    if (this.state.activeCluster !== data.name)
+      this.setState({ activeCluster: data.name })
   }
 
   onDocumentMouseMove = (ev) => {
     const { target } = ev
-    const { props, chart } = this
+    const { state, chart } = this
 
     const className = String((target.className !== undefined && target.className.baseVal) || target.className)
 
     // XXX: we're using recharts internal .container here
-    if (props.activePipeline
+    if (this.state.activeCluster
       && !containers.some(c => c.contains(target))
       && !className.includes('recharts')
     ) {
-      this.props.onMouseLeave && this.props.onMouseLeave(props.activePipeline)
+      this.setState({ activeCluster: undefined })
     }
   }
 
@@ -55,22 +57,21 @@ class PipesPieChart extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return (
-         (this.previousData.length === 0 || this.previousData !== nextProps.data)
-      || (this.activePipeline !== nextProps.activePipeline)
+      this.previousData.length === 0
+      || this.previousData !== nextProps.data
+      || this.state.activeCluster !== nextState.activeCluster
     )
   }
 
   render() {
 
-    const { data, colors, activePipeline } = this.props
+    const { data } = this.props
+    const { activeCluster } = this.state
 
-    const activeIndex = data.findIndex(d => d.name === activePipeline)
+    const activeIndex = data.findIndex(d => d.name === activeCluster)
 
     if (this.previousData != data)
       this.previousData = data
-
-    if (this.activePipeline != activePipeline)
-      this.activePipeline = activePipeline
 
     return (
       <AutoSizer disableHeight>
@@ -83,7 +84,7 @@ class PipesPieChart extends React.Component {
               dataKey='value'
               innerRadius={40}
               outerRadius={80}
-              label={props => renderLabel(props, activePipeline)}
+              label={props => renderLabel(props, activeCluster)}
               labelLine={false}
               isAnimationActive={true}
               onMouseEnter={this.onMouseEnter}
@@ -94,8 +95,12 @@ class PipesPieChart extends React.Component {
             >
               {
                 data.map((entry, i) =>
-                  <Cell fill={activePipeline === undefined ? colors[entry.name] :
-                            entry.name === activePipeline ? colors[entry.name] : hexToRGBA(colors[entry.name], OPACITY_PIE)
+                  <Cell fill={
+                    activeCluster === undefined ?
+                      COLORS[i % COLORS.length] :
+                    entry.name === activeCluster ?
+                      COLORS[i % COLORS.length] :
+                      hexToRGBA(COLORS[i % COLORS.length], OPACITY_PIE)
                   }/>
                 )
               }
@@ -107,7 +112,7 @@ class PipesPieChart extends React.Component {
   }
 }
 
-function renderLabel(props, activePipeline) {
+function renderLabel(props, activeCluster) {
   const RADIAN = Math.PI / 180;
   const {
     cx,
@@ -140,8 +145,8 @@ function renderLabel(props, activePipeline) {
 
   const angle = endAngle - startAngle
 
-  const isActive = payload.name === activePipeline
-  const someActive = activePipeline !== undefined
+  const isActive = payload.name === activeCluster
+  const someActive = activeCluster !== undefined
 
   if (angle < 7 && !isActive)
     return null
@@ -223,4 +228,4 @@ function renderActiveShape(props) {
   )
 }
 
-export default PipesPieChart
+export default ClusterPieChart

@@ -67,6 +67,7 @@ def generateStats(records):
   Generate stats by pipeline by month for given records
   """
   statsByPipeline = {}
+  submissionsByCluster = {}
   minDate = parseDate(records[0][k.date])
   maxDate = parseDate(records[0][k.date])
 
@@ -104,7 +105,7 @@ def generateStats(records):
     pipelineSubmissions = len(records)
 
     statsByMonth = sorted(
-      map(lambda m: { 'month': m, 'samples': 0, 'submissions': 0 }, indexByMonth.keys()),
+      map(lambda m: { 'month': m, 'samples': 0 }, indexByMonth.keys()),
       lambda a, b: indexByMonth[a['month']] - indexByMonth[b['month']]
     )
 
@@ -114,8 +115,11 @@ def generateStats(records):
 
       currentStats = statsByMonth[index]
       currentStats['samples'] += record[k.nb_samples]
-      currentStats['submissions'] += 1
       pipelineSamples += record[k.nb_samples]
+      cluster = getCluster(record[k.hostname])
+
+      submissionsByCluster[cluster] = submissionsByCluster.get(cluster, 0)
+      submissionsByCluster[cluster] += 1
 
     statsByPipeline[pipeline] = {
       'samples': pipelineSamples,
@@ -128,7 +132,8 @@ def generateStats(records):
     'samples': totalSamples,
     'submissions': totalSubmissions,
     'average': float(totalSamples) / totalSubmissions,
-    'byPipeline': statsByPipeline
+    'byPipeline': statsByPipeline,
+    'submissionsByCluster': submissionsByCluster
   }
 
 
@@ -167,6 +172,12 @@ def parseDate(date):
   day   = int(date[8:10])
   return datetime(year, month, day)
 
+def getCluster(hostname):
+  if hostname.startswith('ip'):
+    return 'Mammouth'
+  if hostname.startswith('abacus'):
+    return 'Abacus'
+  return 'Other'
 
 if __name__ == "__main__":
   main()

@@ -9,6 +9,7 @@ import {
   Navbar,
 } from 'react-bootstrap'
 import cx from 'classname'
+import ClusterPieChart from '../components/ClusterPieChart'
 import { DateFrom, DateTo } from '../components/DateRange'
 import MergeCheckbox from '../components/MergeCheckbox'
 import PipelineFilter from '../components/PipelineFilter'
@@ -41,11 +42,11 @@ class AppContainer extends React.Component {
     const { ui, stats } = this.props
     const { params, activePipeline } = ui
     const { selected } = params.pipelines
-    const { byPipeline } = stats
+    const { byPipeline, submissionsByCluster } = stats
 
 
     const samplesChartData = generatePieChartData(byPipeline, 'samples', selected)
-    const submissionsChartData = generatePieChartData(byPipeline, 'submissions', selected)
+    const submissionsChartData = generateClusterPieChartData(submissionsByCluster)
     const lineChartData = generateLineChartData(byPipeline, selected)
     const tableData = generateTableData(byPipeline, selected)
 
@@ -83,7 +84,7 @@ class AppContainer extends React.Component {
 
             <Row className={cx({ 'is-loading': ui.isLoading })}>
               <Col xs={6}>
-                <h4>By Samples</h4>
+                <h4>Samples by Pipeline</h4>
                 <PipesPieChart
                   data={samplesChartData}
                   colors={colorMap}
@@ -93,13 +94,9 @@ class AppContainer extends React.Component {
                 />
               </Col>
               <Col xs={6}>
-                <h4>By Submissions</h4>
-                <PipesPieChart
+                <h4>Submissions by Cluster</h4>
+                <ClusterPieChart
                   data={submissionsChartData}
-                  colors={colorMap}
-                  activePipeline={activePipeline}
-                  onMouseEnter={this.props.setActivePipeline}
-                  onMouseLeave={this.props.removeActivePipeline}
                 />
               </Col>
             </Row>
@@ -158,6 +155,11 @@ const generatePieChartData = weakMapMemoize([WeakMap, Map, WeakMap], (byPipeline
   return Object.entries(byPipeline).map(([name, stats]) => ({
     name, value: selected.has(name) ? stats[property] : 0
   }))
+})
+
+const generateClusterPieChartData = weakMapMemoize([WeakMap], (submissionsByCluster) => {
+  return Object.entries(submissionsByCluster).map(([name, value]) =>
+    ({ name, value }))
 })
 
 const generateTableData = weakMapMemoize((byPipeline, selected) => {
