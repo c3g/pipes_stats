@@ -44,7 +44,7 @@ def logToTuple(line):
     host_ip         = removeKeyName(tokens[5])
     steps           = removeKeyName(tokens[7])
     nb_samples      = parseInt(removeKeyName(tokens[8]))
-    md5             = removeKeyName(tokens[9]) if len(tokens) >= 10 else None
+    md5             = removeKeyName(tokens[9], None) if len(tokens) >= 10 else None
 
 
     pipelineAndVersion = removeKeyName(tokens[6])
@@ -71,10 +71,10 @@ def match(pattern, string):
         return m.group(0)
     return ''
 
-def removeKeyName(token):
+def removeKeyName(token, defaultValue=''):
     result = re.sub('^\w+=', '', token)
     if result == '':
-        result = None
+        return defaultValue
     return result
 
 def parseInt(string):
