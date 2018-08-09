@@ -46,6 +46,7 @@ def logToTuple(line):
     nb_samples      = parseInt(removeKeyName(tokens[8]))
     md5             = removeKeyName(tokens[9]) if len(tokens) >= 10 else None
 
+
     pipelineAndVersion = removeKeyName(tokens[6])
     pipeline = match('^[^-]*', pipelineAndVersion)
     version  = match('(?<=-).*', pipelineAndVersion)
@@ -71,7 +72,10 @@ def match(pattern, string):
     return ''
 
 def removeKeyName(token):
-    return re.sub('^\w+=', '', token)
+    result = re.sub('^\w+=', '', token)
+    if result == '':
+        result = None
+    return result
 
 def parseInt(string):
     try:
