@@ -173,10 +173,24 @@ def parseDate(date):
   return datetime(year, month, day)
 
 def getCluster(hostname):
-  if hostname.startswith('ip'):
-    return 'Mammouth'
   if hostname.startswith('abacus'):
     return 'Abacus'
+  if hostname.startswith('qlogin'):
+    return 'Sick Kids'
+  if hostname.startswith('ip'):
+    return 'Mammouth'
+  if hostname.startswith('lg-'):
+    return 'Guillimin'
+  if hostname.startswith('beluga') or hostname.startswith('blg'):
+    return 'Beluga'
+  if hostname.startswith('cedar') or hostname.startswith('cdr'):
+    return 'Cedar'
+  if hostname.startswith('Graham') or hostname.startswith('gra'):
+    return 'Graham'
+  if hostname.startswith('briaree'):
+    return 'Briaree'
+  if hostname.startswith('colosse'):
+    return 'Colosse'
   return 'Other'
 
 if __name__ == "__main__":
