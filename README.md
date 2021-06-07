@@ -26,3 +26,11 @@ npm run build
 
 Run:  `npm run start`
 Build `npm run build`
+
+#### Development
+
+In development, you'd run `npm start`. The `.proxy` field in `package.json` indicates
+to the webpack-dev-server to proxy API requests to the running apache server, make sure
+to adjust it if apache is running on a different port than `8080` on your local setup.
+This only applies for development. In production, apache serves both the CGI scripts
+and the frontend files in `./build`.
