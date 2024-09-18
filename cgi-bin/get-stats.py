@@ -104,17 +104,12 @@ def generateStats(records):
     pipelineSamples = 0
     pipelineSubmissions = len(records)
 
-    statsByMonth = sorted(
-      map(lambda m: { 'month': m, 'samples': 0 }, indexByMonth.keys()),
-      lambda a, b: indexByMonth[a['month']] - indexByMonth[b['month']]
-    )
+    stat_per_month = {key: 0 for key in indexByMonth.keys()}
 
     for record in records:
       month = getMonthYear(record[k.date])
-      index = indexByMonth[month]
 
-      currentStats = statsByMonth[index]
-      currentStats['samples'] += record[k.nb_samples]
+      stat_per_month[month] += record[k.nb_samples]
       pipelineSamples += record[k.nb_samples]
       cluster = getCluster(record[k.hostname])
 
@@ -125,7 +120,7 @@ def generateStats(records):
       'samples': pipelineSamples,
       'submissions': pipelineSubmissions,
       'average': float(pipelineSamples) / pipelineSubmissions,
-      'months': statsByMonth
+      'months':  [{'sampled': val, 'month': key} for key, val in sorted(stat_per_month.items())]
     }
 
   return {
