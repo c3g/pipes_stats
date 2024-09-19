@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 from __future__ import print_function
 import os
 import sys
@@ -120,7 +120,7 @@ def generateStats(records):
       'samples': pipelineSamples,
       'submissions': pipelineSubmissions,
       'average': float(pipelineSamples) / pipelineSubmissions,
-      'months':  [{'sampled': val, 'month': key} for key, val in sorted(stat_per_month.items())]
+      'months':  [{'samples': val, 'month': key} for key, val in sorted(stat_per_month.items())]
     }
 
   return {
