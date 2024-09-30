@@ -176,7 +176,9 @@ def getCluster(hostname):
     return 'Mammouth'
   if hostname.startswith('lg-'):
     return 'Guillimin'
-  if hostname.startswith('beluga') or hostname.startswith('blg'):
+  if hostname.startswith('narval') or hostname.startswith('nc'):
+    return 'Narval'
+  if hostname.startswith('beluga') or hostname.startswith('blg') or hostname.startswith('bc'):
     return 'Beluga'
   if hostname.startswith('cedar') or hostname.startswith('cdr'):
     return 'Cedar'
