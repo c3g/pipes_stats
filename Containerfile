@@ -1,4 +1,4 @@
-FROM  fedora/httpd-24:20240925
+FROM  quay.io/fedora/httpd-24:20240925
 COPY . /var/www
 USER root
 workdir /var/www
