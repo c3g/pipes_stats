@@ -3,7 +3,24 @@
 
 This is a simple portal to see the usage stats of mugqic pipelines.
 
+The portal lives here:
+https://bigbrother.c3g-app.sd4h.ca
+
+
 ## Installation
+
+Just run the conttainer found here: 
+https://quay.io/repository/c3genomics/pipes_stats
+The server run on port 8081
+two files, `pipes_stats.db` and `mugqic_pipelines.log` need to be in the conatainers `/data` folder
+
+run:
+
+```
+podman run --rm -it  -p 8888:8081 -v <path to data data on host>:/data:Z   quay.io/c3genomics/pipes_stats
+```
+
+
 
 #### Backend
 
