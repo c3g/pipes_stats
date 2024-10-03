@@ -18,7 +18,7 @@ my $steps = $query->param('steps');
 my $samples = $query->param('samples'); 
 my $md5 = $query->param('md5') // ""; 
 print $query->header("text/plain"); 
-open LOG, ">>/home/mugqiclog/log/mugqic_pipelines.log" or die "Couldn't open file: $!";
+open LOG, ">>/data/mugqic_pipelines.log" or die "Couldn't open file: $!";
 print LOG join("\t",
   $datetime,
   "request_ip=" . $ENV{'REMOTE_ADDR'},
