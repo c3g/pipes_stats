@@ -49,7 +49,6 @@
     "eject": "react-scripts eject",
     "prettier": "prettier --single-quote --print-width=120 --trailing-comma es5 --no-semi",
     "format": "npm run prettier -- --write '{,!(build|generators)/**/}*.js'",
-    "precommit": "lint-staged",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
     "lint": "eslint **/*.js --quiet",
     "lint-fix": "eslint --fix"
