@@ -4,44 +4,46 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import MultiSelect from './MultiSelect'
-import { setPipelines } from '../actions'
+import { setProtocols } from '../actions'
 
-class PipelineFilter extends React.Component {
+class ProtocolFilter extends React.Component {
 
-  onChange = (pipeline, value) => {
+  onChange = (protocol, value) => {
     const values = { ...this.values }
-    values[pipeline] = value
+    values[protocol] = value
 
-    const selectedPipelines =
+    const selectedProtocols =
       Object.entries(values)
-        .filter(([, checked]) => checked)
-        .map(([key]) => key)
+        .filter(([p, checked]) => checked)
+        .map(([p]) => p)
 
-    this.props.setPipelines(selectedPipelines)
+    this.props.setProtocols(selectedProtocols)
   }
 
   onChangeAll = (value) => {
     if (value)
-      this.props.setPipelines(Object.keys(this.values))
+      this.props.setProtocols(Object.keys(this.values))
     else
-      this.props.setPipelines([])
+      this.props.setProtocols([])
   }
 
   render() {
     const { isLoading, params } = this.props
-    const { pipelines } = params
+    const { protocols } = params
 
     this.values = {}
 
-    if (pipelines.all) {
-      const all = [...pipelines.all].sort((a, b) => a.localeCompare(b))
-      const selected = pipelines.selected ? pipelines.selected : new Set(all)
+    if (protocols.all) {
+      const { all } = protocols
+      const selected = protocols.selected ? protocols.selected : new Set(all)
 
       all.forEach(key => { this.values[key] = selected.has(key) })
     }
+
     return (
       <MultiSelect
-        label='Pipeline'
+        label='Protocol'
+        className='MultiSelect--compact'
         loading={isLoading}
         values={this.values}
         onChange={this.onChange}
@@ -51,15 +53,13 @@ class PipelineFilter extends React.Component {
   }
 }
 
-
 const mapStateToProps = createStructuredSelector({
   isLoading: createSelector(state => state.ui.isLoading, uiState => uiState),
   params: createSelector(state => state.ui.params, uiState => uiState),
-  byPipeline: createSelector(state => state.stats.byPipeline, uiState => uiState),
 })
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ setPipelines }, dispatch)
+  return bindActionCreators({ setProtocols }, dispatch)
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PipelineFilter)
+export default connect(mapStateToProps, mapDispatchToProps)(ProtocolFilter)

@@ -1,5 +1,4 @@
-#!/usr/bin/env python2
-from __future__ import print_function
+#!/usr/bin/env python3
 import os
 import sys
 import json
@@ -18,6 +17,7 @@ def main():
   dateFrom  = get(args, 'from') or fetchOne('SELECT MIN(date) FROM logs;')[0]
   dateTo    = get(args, 'to')   or fetchOne('SELECT MAX(date) FROM logs;')[0]
   merge     = True if get(args, 'merge') == 'true' else False
+  cluster   = get(args, 'cluster') or None
 
   (query, values) = createQuery(dateFrom, dateTo, merge)
 
@@ -26,7 +26,7 @@ def main():
 
   rows = cursor.fetchall()
 
-  stats = generateStats(rows)
+  stats = generateStats(rows, cluster_filter=cluster)
 
   params = {
     'from': dateFrom,
@@ -62,71 +62,84 @@ def createQuery(dateFrom, dateTo, merge):
 
   return (query, tuple(values))
 
-def generateStats(records):
+def generateStats(records, cluster_filter=None):
   """
-  Generate stats by pipeline by month for given records
+  Generate stats by pipeline by month for given records.
+  submissionsByCluster always reflects ALL records; byPipeline is filtered by cluster_filter.
   """
+  if not records:
+    return {
+      'samples': 0, 'submissions': 0, 'average': 0.0,
+      'byPipeline': {}, 'submissionsByCluster': {}
+    }
+
   statsByPipeline = {}
   submissionsByCluster = {}
-  minDate = parseDate(records[0][k.date])
-  maxDate = parseDate(records[0][k.date])
+
+  # Cluster summary from ALL records regardless of filter
+  for record in records:
+    cluster = getCluster(record[k.hostname])
+    submissionsByCluster[cluster] = submissionsByCluster.get(cluster, 0) + 1
+
+  # Apply cluster filter only for pipeline stats
+  pipeline_records = [r for r in records if getCluster(r[k.hostname]) == cluster_filter] \
+    if cluster_filter else records
+
+  if not pipeline_records:
+    return {
+      'samples': 0, 'submissions': 0, 'average': 0.0,
+      'byPipeline': {}, 'submissionsByCluster': submissionsByCluster
+    }
+
+  minDate = parseDate(pipeline_records[0][k.date])
+  maxDate = parseDate(pipeline_records[0][k.date])
 
   totalSamples = 0
-  totalSubmissions = len(records)
-
-  # First, split records by pipeline
+  totalSubmissions = len(pipeline_records)
 
   recordsByPipeline = {}
-  for record in records:
+  for record in pipeline_records:
     pipeline = record[k.pipeline]
-
     if pipeline not in recordsByPipeline:
       recordsByPipeline[pipeline] = []
-
     recordsByPipeline[pipeline].append(record)
 
-    # Also keep in memory the extreme dates
-
     date = parseDate(record[k.date])
-
     if date < minDate:
       minDate = date
     if date > maxDate:
       maxDate = date
 
-  # Then, split each pipeline records by month
-
   indexByMonth = getMonthsInRange(minDate, maxDate)
 
   for pipeline in recordsByPipeline.keys():
-    records = recordsByPipeline[pipeline]
-
+    recs = recordsByPipeline[pipeline]
     pipelineSamples = 0
-    pipelineSubmissions = len(records)
-
+    pipelineSubmissions = len(recs)
     stat_per_month = {key: 0 for key in indexByMonth.keys()}
+    clusterBreakdown = {}
 
-    for record in records:
+    for record in recs:
       month = getMonthYear(record[k.date])
-
       stat_per_month[month] += record[k.nb_samples]
       pipelineSamples += record[k.nb_samples]
       cluster = getCluster(record[k.hostname])
+      clusterBreakdown[cluster] = clusterBreakdown.get(cluster, 0) + 1
 
-      submissionsByCluster[cluster] = submissionsByCluster.get(cluster, 0)
-      submissionsByCluster[cluster] += 1
+    totalSamples += pipelineSamples
 
     statsByPipeline[pipeline] = {
       'samples': pipelineSamples,
       'submissions': pipelineSubmissions,
       'average': float(pipelineSamples) / pipelineSubmissions,
-      'months':  [{'samples': val, 'month': key} for key, val in sorted(stat_per_month.items())]
+      'months':  [{'samples': val, 'month': key} for key, val in sorted(stat_per_month.items())],
+      'clusterBreakdown': clusterBreakdown,
     }
 
   return {
     'samples': totalSamples,
     'submissions': totalSubmissions,
-    'average': float(totalSamples) / totalSubmissions,
+    'average': float(totalSamples) / totalSubmissions if totalSubmissions else 0.0,
     'byPipeline': statsByPipeline,
     'submissionsByCluster': submissionsByCluster
   }
@@ -168,9 +181,9 @@ def parseDate(date):
   return datetime(year, month, day)
 
 def getCluster(hostname):
-  if hostname.startswith('abacus'):
+  if hostname.startswith('abacus') or hostname.startswith('f') or 'ferrier.genome.mcgill.ca' in hostname:
     return 'Abacus'
-  if hostname.startswith('qlogin'):
+  if hostname.startswith('qlogin') or 'sickkids' in hostname:
     return 'Sick Kids'
   if hostname.startswith('ip'):
     return 'Mammouth'
@@ -188,6 +201,18 @@ def getCluster(hostname):
     return 'Briaree'
   if hostname.startswith('colosse'):
     return 'Colosse'
+  if hostname.startswith('rorqual'):
+    return 'Rorqual'
+  if hostname.startswith('cardinal'):
+    return 'Cardinal'
+  if 'iric' in hostname:
+    return 'IRIC'
+  if 'nibi' in hostname:
+    return 'Nibi'
+  if 'ulaval' in hostname:
+    return 'ULaval'
+  if 'inspq' in hostname:
+    return 'INSPQ'
   return 'Other'
 
 if __name__ == "__main__":

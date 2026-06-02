@@ -1,10 +1,9 @@
 import React from 'react'
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 
 import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import 'react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
 import './styles/index.js'
 
 import configureStore from './store'
@@ -13,29 +12,11 @@ import { fetchData } from './actions'
 
 const store = configureStore()
 
-render(
+const root = createRoot(document.getElementById('root'))
+root.render(
   <Provider store={store}>
     <Routes />
-  </Provider>,
-  document.getElementById('root')
+  </Provider>
 )
 
 store.dispatch(fetchData())
-
-if (module.hot) {
-  /* eslint-disable global-require */
-
-  module.hot.accept('./routes', () => {
-    const NextRoutes = require('./routes').default
-    render(
-      <Provider store={store}>
-        <NextRoutes />
-      </Provider>,
-      document.getElementById('root')
-    )
-  })
-
-  module.hot.accept('./styles', () => {
-    require('./styles/index.js')
-  })
-}

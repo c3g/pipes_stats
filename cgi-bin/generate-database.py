@@ -1,5 +1,4 @@
-#!/usr/bin/env python2
-from __future__ import print_function
+#!/usr/bin/env python3
 import os
 import re
 from utils import db, printJSON
@@ -36,20 +35,25 @@ def logToTuple(line):
                    'tokens': tokens,
                    'line': line})
 
-    date            = tokens[0]
-    request_ip      = removeKeyName(tokens[1])
-    request_method  = removeKeyName(tokens[2])
-    http_user_agent = removeKeyName(tokens[3])
-    hostname        = removeKeyName(tokens[4])
-    host_ip         = removeKeyName(tokens[5])
-    steps           = removeKeyName(tokens[7])
-    nb_samples      = parseInt(removeKeyName(tokens[8]))
-    md5             = removeKeyName(tokens[9], None) if len(tokens) >= 10 else None
+    date = tokens[0]
 
+    kv = {}
+    for token in tokens[1:]:
+        m = re.match(r'^(\w+)=(.*)', token)
+        if m:
+            kv[m.group(1)] = m.group(2)
 
-    pipelineAndVersion = removeKeyName(tokens[6])
-    pipeline = match('^[^-]*', pipelineAndVersion)
-    version  = match('(?<=-).*', pipelineAndVersion)
+    request_ip      = kv.get('request_ip', '')
+    request_method  = kv.get('request_method', '')
+    http_user_agent = kv.get('http_user_agent', '')
+    hostname        = kv.get('hostname', '')
+    host_ip         = kv.get('host_ip', '')
+    pipeline        = normalize_pipeline(kv.get('pipeline', ''))
+    version         = kv.get('version', '')
+    protocol        = kv.get('protocol', '')
+    steps           = kv.get('steps', '')
+    nb_samples      = parseInt(kv.get('nb_samples', '0'))
+    md5             = kv.get('md5') or None
 
     return (
         date,
@@ -60,22 +64,24 @@ def logToTuple(line):
         host_ip,
         pipeline,
         version,
+        protocol,
         steps,
         nb_samples,
         md5
     )
 
-def match(pattern, string):
-    m = re.search(pattern, string)
-    if m:
-        return m.group(0)
-    return ''
+PIPELINE_NAMES = {
+    'chipseq':              'ChipSeq',
+    'chipseq1':             'ChipSeq',
+    'dnaseq':               'DnaSeq',
+    'episeq':               'EpiSeq',
+    'pacbioassembly':       'PacBioAssembly',
+    'rnaseq':               'RnaSeq',
+    'rnaseqdenovoassembly': 'RnaSeqDeNovoAssembly',
+}
 
-def removeKeyName(token, defaultValue=''):
-    result = re.sub('^\w+=', '', token)
-    if result == '':
-        return defaultValue
-    return result
+def normalize_pipeline(name):
+    return PIPELINE_NAMES.get(name.lower(), name)
 
 def parseInt(string):
     try:

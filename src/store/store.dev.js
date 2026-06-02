@@ -1,30 +1,16 @@
-import { createStore, applyMiddleware } from 'redux'
-import ReduxThunk from 'redux-thunk'
-import ReduxLogger from 'redux-logger'
-import { composeWithDevTools } from 'redux-devtools-extension'
+import { createStore, applyMiddleware, compose } from 'redux'
+import { thunk } from 'redux-thunk'
+import logger from 'redux-logger'
 import rootReducer from '../reducers'
 
-export default function configureStore(initialState = {}) {
-  const middlewares = [ReduxThunk, ReduxLogger]
-  const enhancers = [
-    applyMiddleware(...middlewares),
-    // other store enhancers if any
-  ]
-  const composeEnhancers = composeWithDevTools(
-    {
-      // other compose enhancers if any
-      // Specify here other options if needed
-    }
-  )
-  const store = createStore(rootReducer, initialState, composeEnhancers(...enhancers))
-  if (module.hot) {
-    // Enable Webpack hot module replacement for reducers
-    module.hot.accept('../reducers', () => {
-      /* eslint-disable global-require */
-      const nextReducer = require('../reducers').default
-      store.replaceReducer(nextReducer)
-    })
-  }
+const composeEnhancers =
+  (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
 
+export default function configureStore(initialState = {}) {
+  const store = createStore(
+    rootReducer,
+    initialState,
+    composeEnhancers(applyMiddleware(thunk, logger))
+  )
   return store
 }

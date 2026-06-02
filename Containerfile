@@ -1,12 +1,14 @@
-FROM  quay.io/fedora/httpd-24:20240925
-COPY . /var/www
-USER root
+FROM almalinux:9
+COPY build/         /var/www/build/
+COPY cgi-bin/       /var/www/cgi-bin/
+COPY requirements.txt /var/www/requirements.txt
 WORKDIR /var/www
-RUN dnf install -y python2.7 npm perl-CGI-Session.noarch && python2.7 -m ensurepip && \
-     pip2 install -r requirements.txt  && npm install --legacy-peer-deps && \
-     npm run build && npm cache clean --force && dnf clean -y all 
-RUN mkdir /data
-COPY pipes.conf $HTTPD_MAIN_CONF_D_PATH
-WORKDIR $HTTPD_APP_ROOT
+USER root
+RUN dnf install -y httpd python3 python3-pip && \
+    pip3 install -r requirements.txt && \
+    chmod +x /var/www/cgi-bin/*.py /var/www/cgi-bin/*.cgi && \
+    dnf clean all
+RUN mkdir -p /data
+COPY pipes.conf /etc/httpd/conf.d/pipes.conf
 EXPOSE 8081
-USER 1001
+CMD ["httpd", "-D", "FOREGROUND"]

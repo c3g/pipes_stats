@@ -1,34 +1,47 @@
-#!/usr/bin/perl
-use warnings; 
-use strict; 
-use Data::Dumper;
-use CGI qw(:standard); 
-use POSIX qw(strftime);
-my $now = time();
-# We need to munge the timezone indicator to add a colon between the hour and minute part
-my $time_zone = strftime("%z", localtime($now));
-$time_zone =~ s/(\d{2})(\d{2})/$1:$2/;
-# ISO8601
-my $datetime = strftime("%Y-%m-%dT%H:%M:%S", localtime($now)) . $time_zone;
-my $query = new CGI;
-my $hostname = $query->param('hostname');
-my $ip = $query->param('ip'); 
-my $pipeline = $query->param('pipeline'); 
-my $steps = $query->param('steps'); 
-my $samples = $query->param('samples'); 
-my $md5 = $query->param('md5') // ""; 
-print $query->header("text/plain"); 
-open LOG, ">>/data/mugqic_pipelines.log" or die "Couldn't open file: $!";
-print LOG join("\t",
-  $datetime,
-  "request_ip=" . $ENV{'REMOTE_ADDR'},
-  "request_method=" . $ENV{'REQUEST_METHOD'},
-  "http_user_agent=" . $ENV{'HTTP_USER_AGENT'},
-  "hostname=$hostname",
-  "host_ip=$ip",
-  "pipeline=$pipeline",
-  "steps=$steps",
-  "nb_samples=$samples",
-  "md5=$md5"
-), "\n";
-close LOG;
+#!/usr/bin/env python3
+import cgi
+import os
+from datetime import datetime, timezone, timedelta
+
+query = cgi.FieldStorage()
+
+def param(name, default=''):
+    return query[name].value if name in query else default
+
+now = datetime.now(timezone.utc).astimezone()
+offset = now.utcoffset()
+total_seconds = int(offset.total_seconds())
+sign = '+' if total_seconds >= 0 else '-'
+hours, remainder = divmod(abs(total_seconds), 3600)
+minutes = remainder // 60
+tz = f'{sign}{hours:02d}:{minutes:02d}'
+timestamp = now.strftime('%Y-%m-%dT%H:%M:%S') + tz
+
+hostname   = param('hostname')
+ip         = param('ip')
+pipeline   = param('pipeline')
+version    = param('version')
+protocol   = param('protocol')
+steps      = param('steps')
+samples    = param('samples')
+md5        = param('md5')
+
+print('Content-Type: text/plain')
+print()
+
+log_path = os.getenv('PIPES_LOG', '/data/mugqic_pipelines.log')
+with open(log_path, 'a') as f:
+    f.write('\t'.join([
+        timestamp,
+        f'request_ip={os.environ.get("REMOTE_ADDR", "")}',
+        f'request_method={os.environ.get("REQUEST_METHOD", "")}',
+        f'http_user_agent={os.environ.get("HTTP_USER_AGENT", "")}',
+        f'hostname={hostname}',
+        f'host_ip={ip}',
+        f'pipeline={pipeline}',
+        f'version={version}',
+        f'protocol={protocol}',
+        f'steps={steps}',
+        f'nb_samples={samples}',
+        f'md5={md5}',
+    ]) + '\n')

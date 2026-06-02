@@ -14,7 +14,7 @@ class Checkbox extends React.Component {
           id={this.id}
           checked={checked}
         />
-        <label for={this.id} onClick={() => this.props.onChange(!checked)}>
+        <label htmlFor={this.id} onClick={() => this.props.onChange(!checked)}>
           { children }
         </label>
       </div>

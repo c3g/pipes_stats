@@ -1,11 +1,11 @@
-import { createAction } from 'redux-actions'
-
 import * as k from './constants/ActionTypes'
 import { fetchStats, isCancel } from './requests'
 import { normalizeData } from './models'
 
+const createAction = (type) => (payload) => ({ type, payload })
+
 function reloadData(fn) {
-  return function(...args) {
+  return function reloadAction(...args) {
     return (dispatch, getState) => {
       dispatch(fn(...args))
       dispatch(fetchData())
@@ -16,8 +16,12 @@ function reloadData(fn) {
 export const setDateFrom  = reloadData(createAction(k.SET_DATE_FROM))
 export const setDateTo    = reloadData(createAction(k.SET_DATE_TO))
 export const setMerge     = reloadData(createAction(k.SET_MERGE))
+export const setCluster   = reloadData(createAction(k.SET_CLUSTER))
 
 export const setPipelines         = createAction(k.SET_PIPELINES)
+export const setVersions          = createAction(k.SET_VERSIONS)
+export const setProtocols         = createAction(k.SET_PROTOCOL)
+export const setMergeProtocol     = createAction(k.SET_MERGE_PROTOCOL)
 export const setActivePipeline    = createAction(k.SET_ACTIVE_PIPELINE)
 export const removeActivePipeline = createAction(k.REMOVE_ACTIVE_PIPELINE)
 
@@ -32,10 +36,10 @@ export function fetchData() {
     dispatch(requestData())
 
     const params = {
-      from:      ui.params.from,
-      to:        ui.params.to,
-      merge:     ui.params.merge,
-      pipelines: ui.params.pipelines.selected,
+      from:    ui.params.from,
+      to:      ui.params.to,
+      merge:   ui.params.merge,
+      cluster: ui.params.cluster,
     }
     fetchStats(params)
     .then(data => normalizeData(data))

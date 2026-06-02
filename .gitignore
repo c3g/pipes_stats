@@ -5,6 +5,7 @@
 
 # testing
 /coverage
+/test_data
 
 # production
 /build
@@ -17,3 +18,10 @@ yarn-debug.log*
 yarn-error.log*
 *venv
 /data
+
+# python
+__pycache__/
+*.py[cod]
+
+# vite cache
+.vite/

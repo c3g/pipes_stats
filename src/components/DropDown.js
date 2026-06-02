@@ -4,6 +4,7 @@ import cx from 'classname';
 class DropDown extends Component {
   constructor(props) {
     super(props)
+    this.buttonRef = React.createRef()
     this.onDocumentClick = this.onDocumentClick.bind(this)
     this.onClick = this.onClick.bind(this)
     this.state = {
@@ -21,20 +22,19 @@ class DropDown extends Component {
 
   onDocumentClick(event) {
     if (this.state.visible
-        && event.target !== this.refs.button
-        && !this.refs.button.contains(event.target))
+        && event.target !== this.buttonRef.current
+        && !this.buttonRef.current.contains(event.target))
       this.setState({ visible: false })
   }
 
-  onClick(event) {
-    this.setState({ visible: !this.state.visible })
+  onClick() {
+    this.setState(prevState => ({ visible: !prevState.visible }))
   }
 
   render() {
     const {
         label
       , options
-      , onChange
       , children
       , size
       , align
@@ -49,11 +49,10 @@ class DropDown extends Component {
 
     return (
       <div
-        ref='container'
         className={cx('DropDown dropdown', { open: visible })}
       >
         <button
-          ref='button'
+          ref={this.buttonRef}
           type='button'
           className={btnClassName}
           onClick={this.onClick}
@@ -61,11 +60,10 @@ class DropDown extends Component {
           { children || label }
         </button>
         <div
-          ref='list'
           className={listClassName}
         >
-          { options.map((d, i) =>
-              <button key={i}
+          { options.map((d) =>
+              <button key={d.label}
                 type='button'
                 className={cx('list-group-item', d.className || '')}
                 onClick={d.onClick}

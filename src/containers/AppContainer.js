@@ -2,25 +2,29 @@ import React from 'react'
 import { createStructuredSelector, createSelector } from 'reselect'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import {
-  Grid,
-  Row,
-  Col,
-  Navbar,
-} from 'react-bootstrap'
+import { Container, Row, Col, Navbar } from 'react-bootstrap'
 import cx from 'classname'
 import ClusterPieChart from '../components/ClusterPieChart'
 import { DateFrom, DateTo } from '../components/DateRange'
 import MergeCheckbox from '../components/MergeCheckbox'
+import MergeProtocolCheckbox from '../components/MergeProtocolCheckbox'
 import PipelineFilter from '../components/PipelineFilter'
+import VersionFilter from '../components/VersionFilter'
+import ProtocolFilter from '../components/ProtocolFilter'
 import PipesLineChart from '../components/PipesLineChart'
 import PipesPieChart from '../components/PipesPieChart'
 import PipesTable from '../components/PipesTable'
 
 import weakMapMemoize from '../utils/weakMapMemoize'
-import { fetchData, setActivePipeline, removeActivePipeline, printPDF } from '../actions'
+import { fetchData, setActivePipeline, removeActivePipeline, setCluster, printPDF } from '../actions'
 
 class AppContainer extends React.Component {
+  state = { pinnedPipeline: undefined }
+
+  onPinPipeline = (name) => {
+    this.setState({ pinnedPipeline: name })
+  }
+
   componentDidMount() {
     document.body.className = ''
     document.body.addEventListener('keydown', this.onDocumentKeyDown)
@@ -38,48 +42,75 @@ class AppContainer extends React.Component {
   }
 
   render() {
-
     const { ui, stats } = this.props
     const { params, activePipeline } = ui
     const { selected } = params.pipelines
     const { byPipeline, submissionsByCluster } = stats
+    const { pinnedPipeline } = this.state
 
+    const hasVersions = params.versions.all && params.versions.all.length > 0
+    const hasProtocols = params.protocols.all && params.protocols.all.length > 0
+    const effectiveSelected = (hasVersions || hasProtocols)
+      ? computeEffectiveSelected(selected, params.versions.selected, params.protocols.selected)
+      : selected
 
-    const samplesChartData = generatePieChartData(byPipeline, 'samples', selected)
-    const submissionsChartData = generateClusterPieChartData(submissionsByCluster)
-    const lineChartData = generateLineChartData(byPipeline, selected)
-    const tableData = generateTableData(byPipeline, selected)
+    const effectiveByPipeline = (hasProtocols && params.mergeProtocol)
+      ? aggregateByProtocol(byPipeline)
+      : byPipeline
+    const activeSelected = (hasProtocols && params.mergeProtocol)
+      ? new Set([...effectiveSelected].map(removeProtocol))
+      : effectiveSelected
 
-    const colorMap = generateColorMap(byPipeline)
+    // Pie chart always aggregates by version: old ingested data embeds version in the
+    // pipeline name itself, so we strip it regardless of the merge-versions toggle.
+    const pieByPipeline = aggregateByVersion(effectiveByPipeline)
+    const pieActiveSelected = new Set([...activeSelected].map(removeVersion))
+
+    // pinnedPipeline from pie click may be a version-stripped key; expand it back
+    // to all matching versioned entries for the line chart and table.
+    const pinnedSelected = pinnedPipeline
+      ? (activeSelected.has(pinnedPipeline)
+        ? new Set([pinnedPipeline])
+        : new Set([...activeSelected].filter(k => removeVersion(k) === pinnedPipeline)))
+      : activeSelected
+
+    const clusterSource = pinnedPipeline && pieByPipeline[pinnedPipeline]?.clusterBreakdown
+      ? pieByPipeline[pinnedPipeline].clusterBreakdown
+      : submissionsByCluster
+
+    const pieColorMap = generateColorMap(pieByPipeline)
+    const colorMap = generateColorMap(effectiveByPipeline)
+
+    const samplesChartData = generatePieChartData(pieByPipeline, 'samples', pieActiveSelected)
+    const submissionsChartData = generateClusterPieChartData(clusterSource)
+    const lineChartData = generateLineChartData(effectiveByPipeline, pinnedSelected)
+    const tableData = generateTableData(effectiveByPipeline, pinnedSelected)
 
     return (
       <div className='App'>
 
-        <Navbar fixedTop>
-          <Navbar.Header>
-            <Navbar.Brand>
-              <a className='App-title' href='https://bitbucket.org/mugqic/genpipes'>
-                GenPipes
-              </a>
-            </Navbar.Brand>
-          </Navbar.Header>
-          <Navbar.Collapse>
-            <Navbar.Form pullLeft>
+        <Navbar expand="lg" className="bg-light border-bottom py-1 px-3">
+          <Navbar.Brand
+            href='https://github.com/c3g/GenPipes'
+            className='App-title me-3'
+          >
+            <img src='/genpipes_logo.png' alt='GenPipes' height='28' style={{ objectFit: 'contain' }} />
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="navbar-filters" />
+          <Navbar.Collapse id="navbar-filters">
+            <div className="d-flex flex-wrap align-items-center gap-2 py-1">
               <DateFrom />
-            </Navbar.Form>
-            <Navbar.Form pullLeft>
               <DateTo />
-            </Navbar.Form>
-            <Navbar.Form pullLeft>
+              {(hasVersions || params.merge) && <MergeCheckbox />}
+              {(hasProtocols || params.mergeProtocol) && <MergeProtocolCheckbox />}
               <PipelineFilter />
-            </Navbar.Form>
-            <Navbar.Form pullLeft>
-              <MergeCheckbox />
-            </Navbar.Form>
+              {hasVersions && <VersionFilter />}
+              {hasProtocols && <ProtocolFilter />}
+            </div>
           </Navbar.Collapse>
         </Navbar>
 
-        <Grid className='App-content'>
+        <Container fluid className='App-content'>
           <div className='App-inner'>
 
             <Row className={cx({ 'is-loading': ui.isLoading })}>
@@ -87,16 +118,18 @@ class AppContainer extends React.Component {
                 <h4>Samples by Pipeline</h4>
                 <PipesPieChart
                   data={samplesChartData}
-                  colors={colorMap}
+                  colors={pieColorMap}
                   activePipeline={activePipeline}
                   onMouseEnter={this.props.setActivePipeline}
                   onMouseLeave={this.props.removeActivePipeline}
+                  onPinChange={this.onPinPipeline}
                 />
               </Col>
               <Col xs={6}>
                 <h4>Submissions by Cluster</h4>
                 <ClusterPieChart
                   data={submissionsChartData}
+                  onPinChange={this.props.setCluster}
                 />
               </Col>
             </Row>
@@ -115,15 +148,101 @@ class AppContainer extends React.Component {
 
             <Row className={cx({ 'is-loading': ui.isLoading })}>
               <Col xs={12}>
-                <PipesTable data={tableData} />
+                <PipesTable data={tableData} hasVersions={hasVersions} hasProtocols={hasProtocols} />
               </Col>
             </Row>
           </div>
-        </Grid>
+        </Container>
       </div>
     )
   }
 }
+
+function extractVersion(key) {
+  const match = key.match(/-(\d+\.\d+.*)$/)
+  return match ? match[1] : null
+}
+
+function removeVersion(key) {
+  return key.replace(/-(\d+\.\d+.*)$/, '')
+}
+
+function extractProtocol(key) {
+  const base = key.replace(/-(\d+\.\d+.*)$/, '')
+  const match = base.match(/\.([^.]+)$/)
+  return match ? match[1] : null
+}
+
+function removeProtocol(key) {
+  const vMatch = key.match(/-(\d+\.\d+.*)$/)
+  const versionSuffix = vMatch ? vMatch[0] : ''
+  const base = vMatch ? key.slice(0, vMatch.index) : key
+  const dotIdx = base.indexOf('.')
+  return (dotIdx !== -1 ? base.slice(0, dotIdx) : base) + versionSuffix
+}
+
+const computeEffectiveSelected = weakMapMemoize((pipelinesSelected, versionsSelected, protocolsSelected) => {
+  const result = new Set()
+  pipelinesSelected.forEach(key => {
+    const version = extractVersion(key)
+    const protocol = extractProtocol(key)
+    if ((!version || versionsSelected.has(version)) && (!protocol || protocolsSelected.has(protocol)))
+      result.add(key)
+  })
+  return result
+})
+
+const aggregateByVersion = weakMapMemoize((byPipeline) => {
+  const result = {}
+  Object.entries(byPipeline).forEach(([key, data]) => {
+    const mergedKey = removeVersion(key)
+    if (!result[mergedKey]) {
+      result[mergedKey] = {
+        ...data,
+        months: data.months.map(m => ({ ...m })),
+        clusterBreakdown: { ...(data.clusterBreakdown || {}) },
+      }
+    } else {
+      const existing = result[mergedKey]
+      existing.samples += data.samples
+      existing.submissions += data.submissions
+      existing.average = existing.samples / existing.submissions
+      data.months.forEach((m, i) => {
+        if (existing.months[i]) existing.months[i] = { ...existing.months[i], samples: existing.months[i].samples + m.samples }
+      })
+      Object.entries(data.clusterBreakdown || {}).forEach(([cluster, count]) => {
+        existing.clusterBreakdown[cluster] = (existing.clusterBreakdown[cluster] || 0) + count
+      })
+    }
+  })
+  return result
+})
+
+const aggregateByProtocol = weakMapMemoize((byPipeline) => {
+  const result = {}
+  Object.entries(byPipeline).forEach(([key, data]) => {
+    const mergedKey = removeProtocol(key)
+    if (!result[mergedKey]) {
+      result[mergedKey] = {
+        ...data,
+        months: data.months.map(m => ({ ...m })),
+        clusterBreakdown: { ...(data.clusterBreakdown || {}) },
+      }
+    } else {
+      const existing = result[mergedKey]
+      existing.samples += data.samples
+      existing.submissions += data.submissions
+      existing.average = existing.samples / existing.submissions
+      data.months.forEach((m, i) => {
+        if (existing.months[i]) existing.months[i] = { ...existing.months[i], samples: existing.months[i].samples + m.samples }
+      })
+      Object.entries(data.clusterBreakdown || {}).forEach(([cluster, count]) => {
+        existing.clusterBreakdown[cluster] = (existing.clusterBreakdown[cluster] || 0) + count
+      })
+    }
+  })
+  return result
+})
 
 const generateColorMap = weakMapMemoize((byPipeline) => {
   const colorMap = {}
@@ -151,24 +270,21 @@ const generateLineChartData = weakMapMemoize((byPipeline, selected) => {
   return data
 })
 
-const generatePieChartData = weakMapMemoize([WeakMap, Map, WeakMap], (byPipeline, property, selected) => {
-  return Object.entries(byPipeline).map(([name, stats]) => ({
+const generatePieChartData = weakMapMemoize([WeakMap, Map, WeakMap], (byPipeline, property, selected) =>
+  Object.entries(byPipeline).map(([name, stats]) => ({
     name, value: selected.has(name) ? stats[property] : 0
   }))
-})
+)
 
-const generateClusterPieChartData = weakMapMemoize([WeakMap], (submissionsByCluster) => {
-  return Object.entries(submissionsByCluster).map(([name, value]) =>
-    ({ name, value }))
-})
+const generateClusterPieChartData = weakMapMemoize([WeakMap], (submissionsByCluster) =>
+  Object.entries(submissionsByCluster).map(([name, value]) => ({ name, value }))
+)
 
-const generateTableData = weakMapMemoize((byPipeline, selected) => {
-  return Object.entries(byPipeline)
-    .filter(([name, stats]) => selected.has(name))
+const generateTableData = weakMapMemoize((byPipeline, selected) =>
+  Object.entries(byPipeline)
+    .filter(([name]) => selected.has(name))
     .map(([name, stats]) => ({ name, ...stats }))
-})
-
-
+)
 
 const mapStateToProps = createStructuredSelector({
   stats: createSelector(state => state.stats, statsState => statsState),
@@ -176,7 +292,7 @@ const mapStateToProps = createStructuredSelector({
 })
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ fetchData, setActivePipeline, removeActivePipeline }, dispatch)
+  return bindActionCreators({ fetchData, setActivePipeline, removeActivePipeline, setCluster }, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppContainer)
