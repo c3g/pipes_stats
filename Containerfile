@@ -1,5 +1,12 @@
+FROM node:lts-alpine AS frontend-builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
 FROM almalinux:9
-COPY build/         /var/www/build/
+COPY --from=frontend-builder /app/build/ /var/www/build/
 COPY cgi-bin/       /var/www/cgi-bin/
 COPY requirements.txt /var/www/requirements.txt
 WORKDIR /var/www
