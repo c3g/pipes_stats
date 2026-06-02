@@ -6,13 +6,11 @@ on:
     types: [opened, synchronize]
     branches: ['main']
     paths:
-      - 'Dockerfile'
-      - 'container/**'
-      - 'default.local'
-      - 'genpipesrc'
-      - 'init_genpipes'
-      - 'ref.mugqic.local'
-      - 'soft.mugqic.local'
+      - 'Containerfile'
+      - 'cgi-bin/**'
+      - 'src/**'
+      - 'pipes.conf'
+      - 'package.json'
 
 # Defines 3 custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
@@ -72,6 +70,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           context: .
+          file: Containerfile
           push: ${{ github.event.pull_request.head.repo.fork == false }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
