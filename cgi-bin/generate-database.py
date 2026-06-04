@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import re
+import hashlib
 from utils import db, printJSON
 from models import queries
 
@@ -54,6 +55,8 @@ def logToTuple(line):
     steps           = kv.get('steps', '')
     nb_samples      = parseInt(kv.get('nb_samples', '0'))
     md5             = kv.get('md5') or None
+    user            = kv.get('user', '')
+    user_hash       = hashlib.sha256(user.encode()).hexdigest() if user else None
 
     return (
         date,
@@ -67,7 +70,8 @@ def logToTuple(line):
         protocol,
         steps,
         nb_samples,
-        md5
+        md5,
+        user_hash
     )
 
 PIPELINE_NAMES = {

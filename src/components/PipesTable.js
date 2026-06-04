@@ -15,7 +15,7 @@ function splitName(name) {
 }
 
 function averageFormatter(cell) {
-  return <span className='monospace'>{cell.toFixed(2)}</span>
+  return <span className='monospace'>{Math.round(cell)}</span>
 }
 
 function SortHeader({ field, current, dir, onSort, align, rowSpan, colSpan, children }) {
@@ -71,6 +71,7 @@ function PipesTable({ data, hasVersions, hasProtocols }) {
           <SortHeader field='samples' current={sortField} dir={sortDir} onSort={handleSort} align='right' rowSpan={metricRowSpan}>Samples</SortHeader>
           <SortHeader field='submissions' current={sortField} dir={sortDir} onSort={handleSort} align='right' rowSpan={metricRowSpan}>Submissions</SortHeader>
           <SortHeader field='average' current={sortField} dir={sortDir} onSort={handleSort} align='right' rowSpan={metricRowSpan}>Avg samples/submission</SortHeader>
+          <SortHeader field='steps' current={sortField} dir={sortDir} onSort={handleSort} align='right' rowSpan={metricRowSpan}>Avg steps/submission</SortHeader>
         </tr>
         {subColumns && (
           <tr>
@@ -89,6 +90,7 @@ function PipesTable({ data, hasVersions, hasProtocols }) {
             <td className='PipesTable__number text-end'>{row.samples}</td>
             <td className='PipesTable__number text-end'>{row.submissions}</td>
             <td className='PipesTable__number text-end'>{averageFormatter(row.average)}</td>
+            <td className='PipesTable__number text-end'>{averageFormatter(row.steps / row.submissions)}</td>
           </tr>
         ))}
       </tbody>

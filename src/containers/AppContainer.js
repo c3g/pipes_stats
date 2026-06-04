@@ -45,7 +45,7 @@ class AppContainer extends React.Component {
     const { ui, stats } = this.props
     const { params, activePipeline } = ui
     const { selected } = params.pipelines
-    const { byPipeline, submissionsByCluster } = stats
+    const { byPipeline, submissionsByCluster, uniqueUsersByCluster } = stats
     const { pinnedPipeline } = this.state
 
     const hasVersions = params.versions.all && params.versions.all.length > 0
@@ -82,7 +82,8 @@ class AppContainer extends React.Component {
     const colorMap = generateColorMap(effectiveByPipeline)
 
     const samplesChartData = generatePieChartData(pieByPipeline, 'samples', pieActiveSelected)
-    const submissionsChartData = generateClusterPieChartData(clusterSource)
+    const usersSource = pinnedPipeline ? EMPTY_OBJ : uniqueUsersByCluster
+    const submissionsChartData = generateClusterPieChartData(clusterSource, usersSource)
     const lineChartData = generateLineChartData(effectiveByPipeline, pinnedSelected)
     const tableData = generateTableData(effectiveByPipeline, pinnedSelected)
 
@@ -206,7 +207,8 @@ const aggregateByVersion = weakMapMemoize((byPipeline) => {
       const existing = result[mergedKey]
       existing.samples += data.samples
       existing.submissions += data.submissions
-      existing.average = existing.samples / existing.submissions
+      existing.steps += data.steps
+      existing.average = Math.round(existing.samples / existing.submissions)
       data.months.forEach((m, i) => {
         if (existing.months[i]) existing.months[i] = { ...existing.months[i], samples: existing.months[i].samples + m.samples }
       })
@@ -232,7 +234,8 @@ const aggregateByProtocol = weakMapMemoize((byPipeline) => {
       const existing = result[mergedKey]
       existing.samples += data.samples
       existing.submissions += data.submissions
-      existing.average = existing.samples / existing.submissions
+      existing.steps += data.steps
+      existing.average = Math.round(existing.samples / existing.submissions)
       data.months.forEach((m, i) => {
         if (existing.months[i]) existing.months[i] = { ...existing.months[i], samples: existing.months[i].samples + m.samples }
       })
@@ -276,8 +279,14 @@ const generatePieChartData = weakMapMemoize([WeakMap, Map, WeakMap], (byPipeline
   }))
 )
 
-const generateClusterPieChartData = weakMapMemoize([WeakMap], (submissionsByCluster) =>
-  Object.entries(submissionsByCluster).map(([name, value]) => ({ name, value }))
+const EMPTY_OBJ = {}
+
+const generateClusterPieChartData = weakMapMemoize((submissionsByCluster, uniqueUsersByCluster) =>
+  Object.entries(submissionsByCluster).map(([name, value]) => ({
+    name,
+    value,
+    users: uniqueUsersByCluster[name] ?? 0,
+  }))
 )
 
 const generateTableData = weakMapMemoize((byPipeline, selected) =>

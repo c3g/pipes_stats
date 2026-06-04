@@ -69,17 +69,23 @@ def generateStats(records, cluster_filter=None):
   """
   if not records:
     return {
-      'samples': 0, 'submissions': 0, 'average': 0.0,
-      'byPipeline': {}, 'submissionsByCluster': {}
+      'samples': 0, 'submissions': 0, 'average': 0.0, 'steps': 0,
+      'byPipeline': {}, 'submissionsByCluster': {}, 'uniqueUsersByCluster': {}
     }
 
   statsByPipeline = {}
   submissionsByCluster = {}
+  usersByCluster = {}
 
   # Cluster summary from ALL records regardless of filter
   for record in records:
     cluster = getCluster(record[k.hostname])
     submissionsByCluster[cluster] = submissionsByCluster.get(cluster, 0) + 1
+    user_hash = record[k.user_hash]
+    if user_hash:
+      usersByCluster.setdefault(cluster, set()).add(user_hash)
+
+  uniqueUsersByCluster = {cluster: len(users) for cluster, users in usersByCluster.items()}
 
   # Apply cluster filter only for pipeline stats
   pipeline_records = [r for r in records if getCluster(r[k.hostname]) == cluster_filter] \
@@ -87,8 +93,9 @@ def generateStats(records, cluster_filter=None):
 
   if not pipeline_records:
     return {
-      'samples': 0, 'submissions': 0, 'average': 0.0,
-      'byPipeline': {}, 'submissionsByCluster': submissionsByCluster
+      'samples': 0, 'submissions': 0, 'average': 0.0, 'steps': 0,
+      'byPipeline': {}, 'submissionsByCluster': submissionsByCluster,
+      'uniqueUsersByCluster': uniqueUsersByCluster
     }
 
   minDate = parseDate(pipeline_records[0][k.date])
@@ -96,6 +103,7 @@ def generateStats(records, cluster_filter=None):
 
   totalSamples = 0
   totalSubmissions = len(pipeline_records)
+  totalSteps = 0
 
   recordsByPipeline = {}
   for record in pipeline_records:
@@ -116,6 +124,7 @@ def generateStats(records, cluster_filter=None):
     recs = recordsByPipeline[pipeline]
     pipelineSamples = 0
     pipelineSubmissions = len(recs)
+    pipelineSteps = 0
     stat_per_month = {key: 0 for key in indexByMonth.keys()}
     clusterBreakdown = {}
 
@@ -123,15 +132,18 @@ def generateStats(records, cluster_filter=None):
       month = getMonthYear(record[k.date])
       stat_per_month[month] += record[k.nb_samples]
       pipelineSamples += record[k.nb_samples]
+      pipelineSteps += countSteps(record[k.steps])
       cluster = getCluster(record[k.hostname])
       clusterBreakdown[cluster] = clusterBreakdown.get(cluster, 0) + 1
 
     totalSamples += pipelineSamples
+    totalSteps += pipelineSteps
 
     statsByPipeline[pipeline] = {
       'samples': pipelineSamples,
       'submissions': pipelineSubmissions,
-      'average': float(pipelineSamples) / pipelineSubmissions,
+      'average': round(float(pipelineSamples) / pipelineSubmissions),
+      'steps': pipelineSteps,
       'months':  [{'samples': val, 'month': key} for key, val in sorted(stat_per_month.items())],
       'clusterBreakdown': clusterBreakdown,
     }
@@ -139,11 +151,21 @@ def generateStats(records, cluster_filter=None):
   return {
     'samples': totalSamples,
     'submissions': totalSubmissions,
-    'average': float(totalSamples) / totalSubmissions if totalSubmissions else 0.0,
+    'average': round(float(totalSamples) / totalSubmissions) if totalSubmissions else 0,
+    'steps': totalSteps,
     'byPipeline': statsByPipeline,
-    'submissionsByCluster': submissionsByCluster
+    'submissionsByCluster': submissionsByCluster,
+    'uniqueUsersByCluster': uniqueUsersByCluster
   }
 
+
+def countSteps(steps_str):
+  if not steps_str:
+    return 0
+  m = re.match(r'^\d+-(\d+)$', steps_str)
+  if m:
+    return int(m.group(1))
+  return len(steps_str.split(','))
 
 def getMonthYear(date):
   if type(date) != datetime:

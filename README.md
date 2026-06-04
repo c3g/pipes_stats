@@ -78,8 +78,8 @@ PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/normalize-pipelines.py
 Or inside the container:
 
 ```bash
-podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /app/cgi-bin/normalize-pipelines.py --dry-run'
-podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /app/cgi-bin/normalize-pipelines.py'
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/normalize-pipelines.py --dry-run'
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/normalize-pipelines.py'
 ```
 
 This is a one-time operation. After running it, `generate-database.py` will keep names normalized for all future rebuilds.
@@ -99,11 +99,32 @@ PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/clean-empty-pipelines.py
 Or inside the container:
 
 ```bash
-podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /app/cgi-bin/clean-empty-pipelines.py --dry-run'
-podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /app/cgi-bin/clean-empty-pipelines.py'
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/clean-empty-pipelines.py --dry-run'
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/clean-empty-pipelines.py'
 ```
 
 This is a one-time cleanup. New entries from `pipeline.cgi` always include a pipeline name.
+
+### Adding the user_hash column
+
+The `user_hash` column was added to track unique anonymous users per cluster. It stores a SHA-256 hash of the username — the original username is never saved. If you are migrating an existing production database (rather than rebuilding from scratch), run `migrate-add-user-hash.py` to add the column without touching existing rows:
+
+```bash
+# Preview
+PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/migrate-add-user-hash.py --dry-run
+
+# Apply
+PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/migrate-add-user-hash.py
+```
+
+Or inside the container:
+
+```bash
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/migrate-add-user-hash.py --dry-run'
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/migrate-add-user-hash.py'
+```
+
+Existing rows will have `user_hash = NULL` until the database is rebuilt from a log that includes `user=` fields. The script is idempotent — running it again after the column already exists does nothing.
 
 ## Commands
 

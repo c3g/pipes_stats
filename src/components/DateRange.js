@@ -26,7 +26,7 @@ export const DateFrom = bind(({ params, setDateFrom: onDateFrom }) =>
     value={params.from}
     dateFormat='YYYY-MM-DD'
     showClearButton={false}
-    addonBefore={<InputGroup.Text>From</InputGroup.Text>}
+    addonBefore={<InputGroup.Text className='gap-2'><i className='fa fa-calendar-o' aria-hidden='true' />From</InputGroup.Text>}
   />)
 
 export const DateTo = bind(({ params, setDateTo: onDateTo }) =>
@@ -38,5 +38,5 @@ export const DateTo = bind(({ params, setDateTo: onDateTo }) =>
     value={params.to}
     dateFormat='YYYY-MM-DD'
     showClearButton={false}
-    addonBefore={<InputGroup.Text>To</InputGroup.Text>}
+    addonBefore={<InputGroup.Text className='gap-2'><i className='fa fa-calendar-o' aria-hidden='true' />To</InputGroup.Text>}
   />)

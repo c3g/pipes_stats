@@ -122,8 +122,8 @@ class ClusterPieChart extends React.Component {
 }
 
 function computeLabelPositions(data, cxPx, cyPx, outerRadius, filter) {
-  const LINE_HEIGHT = 16
-  const r = outerRadius + 20
+  const LINE_HEIGHT = 18
+  const r = outerRadius + 30
   const total = data.reduce((s, d) => s + (d.value || 0), 0)
   if (total === 0) return {}
 
@@ -167,9 +167,9 @@ function renderLabel(props, activeCluster, adjustedPositions) {
   const cos = Math.cos(-RADIAN * midAngle)
   const sx = cx + outerRadius * cos
   const sy = cy + outerRadius * sin
-  const mx = cx + (outerRadius + 20) * cos
-  const my = cy + (outerRadius + 20) * sin
-  const ex = mx + (cos >= 0 ? 1 : -1) * 25
+  const mx = cx + (outerRadius + 30) * cos
+  const my = cy + (outerRadius + 30) * sin
+  const ex = mx + (cos >= 0 ? 1 : -1) * 30
   const ey = (adjustedPositions && adjustedPositions[payload.name] !== undefined)
     ? adjustedPositions[payload.name] : my
   const textAnchor = cos >= 0 ? 'start' : 'end'
@@ -187,13 +187,13 @@ function renderLabel(props, activeCluster, adjustedPositions) {
         <Sector cx={cx} cy={cy} startAngle={startAngle} endAngle={endAngle}
           innerRadius={outerRadius + 6} outerRadius={outerRadius + 10} fill={fill} />
       )}
-      <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill='none' />
+      <path d={`M${sx},${sy}L${mx},${my}L${ex},${my}L${ex},${ey}`} stroke={fill} fill='none' />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none' />
       <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey + 3} textAnchor={textAnchor}
         fill={`rgba(51, 51, 51, ${isActive ? 1 : someActive ? OPACITY_TEXT : 1})`}
         style={textStyle}
       >
-        {name} ({payload.value})
+        {name} ({payload.value}{payload.users > 0 ? ` | ${payload.users} users` : ''})
       </text>
     </g>
   )

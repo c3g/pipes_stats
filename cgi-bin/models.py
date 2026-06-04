@@ -22,6 +22,7 @@ keys = [
   , 'steps'
   , 'nb_samples'
   , 'md5'
+  , 'user_hash'
 ]
 
 k = dotdict({})
@@ -38,6 +39,7 @@ k.protocol        = 9
 k.steps           = 10
 k.nb_samples      = 11
 k.md5             = 12
+k.user_hash       = 13
 
 queries = dotdict({})
 
@@ -60,6 +62,7 @@ queries.createTable = '''
       , steps           text         not null
       , nb_samples      integer      not null
       , md5             varchar(33)  null unique
+      , user_hash       varchar(64)  null
     );
 '''
 
@@ -77,8 +80,9 @@ queries.insertLog = '''
       , steps
       , nb_samples
       , md5
+      , user_hash
     )
-    VALUES (? , ? , ?, ? , ? , ? , ? , ? , ?, ?, ?, ?);
+    VALUES (? , ? , ?, ? , ? , ? , ? , ? , ?, ?, ?, ?, ?);
 '''
 
 queries.selectAllMerged = '''
@@ -95,6 +99,7 @@ queries.selectAllMerged = '''
          , steps
          , nb_samples
          , md5
+         , user_hash
       FROM logs
      WHERE %s
     ;
@@ -114,6 +119,7 @@ queries.selectAll = '''
          , steps
          , nb_samples
          , md5
+         , user_hash
       FROM logs
      WHERE %s
     ;
