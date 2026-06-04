@@ -39,6 +39,93 @@ npm install
 npm run build
 ```
 
+## Database maintenance
+
+The database is built from the log file (`mugqic_pipelines.log`) by `generate-database.py`. This script drops and recreates the entire `pipes_stats.db` from scratch, so it should be run:
+
+- **On first deployment**, before the app is used, to seed the database from an existing log file.
+- **After log rotation or log file replacement**, to sync the database with the new log contents.
+- **If the database becomes corrupt or out of sync** with the log file.
+
+It does not need to run on a schedule — `pipeline.cgi` appends new entries to the log in real time, and the database is updated immediately on each submission.
+
+For security reasons `generate-database.py` is restricted to localhost. To trigger a rebuild, SSH into the server and run:
+
+```bash
+curl http://localhost:8081/cgi-bin/generate-database.py
+```
+
+Or, if running via the container directly:
+
+```bash
+podman exec <container-name> curl http://localhost:8081/cgi-bin/generate-database.py
+```
+
+### Pipeline name normalization
+
+Early versions of the pipeline logger used inconsistent casing for pipeline names (e.g. `chipSeq`, `dnaSeq`, `rnaSeq`). Current versions use PascalCase (`ChipSeq`, `DnaSeq`, `RnaSeq`). The `generate-database.py` script normalizes names on ingestion, but existing production databases built from old logs may still contain the legacy names as separate entries.
+
+Run `normalize-pipelines.py` once on the production database to merge those legacy entries into their canonical equivalents:
+
+```bash
+# Preview changes without applying them
+PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/normalize-pipelines.py --dry-run
+
+# Apply
+PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/normalize-pipelines.py
+```
+
+Or inside the container:
+
+```bash
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/normalize-pipelines.py --dry-run'
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/normalize-pipelines.py'
+```
+
+This is a one-time operation. After running it, `generate-database.py` will keep names normalized for all future rebuilds.
+
+### Removing empty-pipeline entries
+
+Some old log entries were recorded without a pipeline name. These entries cannot be attributed to any pipeline and should be removed:
+
+```bash
+# Preview changes without applying them
+PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/clean-empty-pipelines.py --dry-run
+
+# Apply
+PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/clean-empty-pipelines.py
+```
+
+Or inside the container:
+
+```bash
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/clean-empty-pipelines.py --dry-run'
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/clean-empty-pipelines.py'
+```
+
+This is a one-time cleanup. New entries from `pipeline.cgi` always include a pipeline name.
+
+### Adding the user_hash column
+
+The `user_hash` column was added to track unique anonymous users per cluster. It stores a SHA-256 hash of the username — the original username is never saved. If you are migrating an existing production database (rather than rebuilding from scratch), run `migrate-add-user-hash.py` to add the column without touching existing rows:
+
+```bash
+# Preview
+PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/migrate-add-user-hash.py --dry-run
+
+# Apply
+PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/migrate-add-user-hash.py
+```
+
+Or inside the container:
+
+```bash
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/migrate-add-user-hash.py --dry-run'
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/migrate-add-user-hash.py'
+```
+
+Existing rows will have `user_hash = NULL` until the database is rebuilt from a log that includes `user=` fields. The script is idempotent — running it again after the column already exists does nothing.
+
 ## Commands
 
 Run:  `npm run start`

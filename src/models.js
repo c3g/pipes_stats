@@ -1,8 +1,8 @@
 import colors from './constants/colors'
 
 export function normalizeData(data) {
-  Object.entries(data.stats.byPipeline).forEach(([name, data]) => {
-    data.color = colors[hash(name) % colors.length]
+  Object.entries(data.stats.byPipeline).forEach(([name, pipeline]) => {
+    pipeline.color = colors[hash(name) % colors.length]
   })
   return data
 }

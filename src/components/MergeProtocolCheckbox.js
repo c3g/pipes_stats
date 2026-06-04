@@ -4,16 +4,15 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import Checkbox from './Checkbox'
-import { setMerge } from '../actions'
+import { setMergeProtocol } from '../actions'
 
-function MergeCheckbox({ params, setMerge: onMerge }) {
+function MergeProtocolCheckbox({ params, setMergeProtocol: onMergeProtocol }) {
   return (
-    <Checkbox checked={params.merge} onChange={() => onMerge(!params.merge)}>
-      Merge Pipeline Versions
+    <Checkbox checked={params.mergeProtocol} onChange={() => onMergeProtocol(!params.mergeProtocol)}>
+      Merge Pipeline Protocols
     </Checkbox>
   )
 }
-
 
 const mapStateToProps = createStructuredSelector({
   isLoading: createSelector(state => state.ui.isLoading, uiState => uiState),
@@ -21,7 +20,7 @@ const mapStateToProps = createStructuredSelector({
 })
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ setMerge }, dispatch)
+  return bindActionCreators({ setMergeProtocol }, dispatch)
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MergeCheckbox)
+export default connect(mapStateToProps, mapDispatchToProps)(MergeProtocolCheckbox)

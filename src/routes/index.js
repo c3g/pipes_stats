@@ -1,19 +1,21 @@
 import React from 'react'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { AppContainer } from '../containers'
 
 const Container = styled.div`text-align: center;`
 
-function Routes() {
+function AppRoutes() {
   return (
     <Router>
       <Container>
-        <Route path="/" component={AppContainer} />
+        <Routes>
+          <Route path="/" element={<AppContainer />} />
+        </Routes>
       </Container>
     </Router>
   )
 }
 
-export default Routes
+export default AppRoutes

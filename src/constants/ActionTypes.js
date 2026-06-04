@@ -11,3 +11,10 @@ export const SET_MERGE              = 'SET_MERGE'
 export const SET_PIPELINES          = 'SET_PIPELINES'
 export const SET_ACTIVE_PIPELINE    = 'SET_ACTIVE_PIPELINE'
 export const REMOVE_ACTIVE_PIPELINE = 'REMOVE_ACTIVE_PIPELINE'
+// Versions
+export const SET_VERSIONS           = 'SET_VERSIONS'
+// Cluster
+export const SET_CLUSTER            = 'SET_CLUSTER'
+// Protocol
+export const SET_PROTOCOL           = 'SET_PROTOCOL'
+export const SET_MERGE_PROTOCOL     = 'SET_MERGE_PROTOCOL'

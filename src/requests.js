@@ -12,29 +12,28 @@ window.axios = axios
 const BASE_URL = '/cgi-bin'
 
 function fetchAPI(url, params, options = {}) {
-  let { method = 'get', ...other } = options
+  const { method = 'get', ...other } = options
 
   let finalURL = BASE_URL + url
-  let data = undefined
+  let requestData
 
   if (method === 'post' && params)
-    data = params
+    requestData = params
 
   if (method === 'get' && params)
     finalURL += `?${queryString(params)}`
 
   const config = {
-    method: method,
+    method,
     url: finalURL,
-    data: data,
+    data: requestData,
     ...other
   }
 
   return axios(config).then(({ data }) => {
     if (data.ok)
       return Promise.resolve(data.data)
-    else
-      return Promise.reject(data.message)
+    return Promise.reject(data.message)
   })
 }
 
@@ -47,4 +46,4 @@ export function fetchStats(params) {
   return fetchAPI('/get-stats.py', params, { cancelToken: statsSource.token })
 }
 
-export const isCancel = axios.isCancel
+export const { isCancel } = axios

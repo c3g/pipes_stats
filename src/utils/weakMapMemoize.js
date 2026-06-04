@@ -1,11 +1,10 @@
 
-const createMap = (type) => {
-  return type === undefined ? new WeakMap() : new type()
-}
+// eslint-disable-next-line new-cap
+const createMap = (type) => (type === undefined ? new WeakMap() : new type())
 
-const weakMapMemoize = (...args) => {
-  let fn     = args.length === 2 ? args[1] : args[0]
-  let config = args.length === 2 ? args[0] : []
+const weakMapMemoize = (...outerArgs) => {
+  const fn     = outerArgs.length === 2 ? outerArgs[1] : outerArgs[0]
+  const config = outerArgs.length === 2 ? outerArgs[0] : []
 
   const baseMap = createMap(config[0])
 

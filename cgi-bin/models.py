@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
@@ -18,9 +18,11 @@ keys = [
   , 'host_ip'
   , 'pipeline'
   , 'version'
+  , 'protocol'
   , 'steps'
   , 'nb_samples'
   , 'md5'
+  , 'user_hash'
 ]
 
 k = dotdict({})
@@ -33,9 +35,11 @@ k.hostname        = 5
 k.host_ip         = 6
 k.pipeline        = 7
 k.version         = 8
-k.steps           = 9
-k.nb_samples      = 10
-k.md5             = 11
+k.protocol        = 9
+k.steps           = 10
+k.nb_samples      = 11
+k.md5             = 12
+k.user_hash       = 13
 
 queries = dotdict({})
 
@@ -54,9 +58,11 @@ queries.createTable = '''
       , host_ip         varchar(46)  not null
       , pipeline        varchar(100) not null
       , version         varchar(100) null
+      , protocol        varchar(100) null
       , steps           text         not null
       , nb_samples      integer      not null
       , md5             varchar(33)  null unique
+      , user_hash       varchar(64)  null
     );
 '''
 
@@ -70,11 +76,13 @@ queries.insertLog = '''
       , host_ip
       , pipeline
       , version
+      , protocol
       , steps
       , nb_samples
       , md5
+      , user_hash
     )
-    VALUES (? , ? , ?, ? , ? , ? , ? , ? , ?, ?, ?);
+    VALUES (? , ? , ?, ? , ? , ? , ? , ? , ?, ?, ?, ?, ?);
 '''
 
 queries.selectAllMerged = '''
@@ -85,11 +93,13 @@ queries.selectAllMerged = '''
          , http_user_agent
          , hostname
          , host_ip
-         , pipeline as pipeline_
+         , pipeline || CASE WHEN protocol IS NULL OR protocol = '' THEN '' ELSE '.' || protocol END as pipeline_
          , version
+         , protocol
          , steps
          , nb_samples
          , md5
+         , user_hash
       FROM logs
      WHERE %s
     ;
@@ -103,11 +113,13 @@ queries.selectAll = '''
          , http_user_agent
          , hostname
          , host_ip
-         , pipeline || '-' || version as pipeline_
+         , pipeline || CASE WHEN protocol IS NULL OR protocol = '' THEN '' ELSE '.' || protocol END || CASE WHEN version IS NULL OR version = '' THEN '' ELSE '-' || version END as pipeline_
          , version
+         , protocol
          , steps
          , nb_samples
          , md5
+         , user_hash
       FROM logs
      WHERE %s
     ;

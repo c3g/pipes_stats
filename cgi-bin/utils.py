@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
@@ -11,6 +11,13 @@ import json
 import sqlite3
 
 db = sqlite3.connect(os.getenv('PIPES_DB'))
+
+# Migrate: add protocol column if the DB was created before it was introduced
+try:
+    db.execute('ALTER TABLE logs ADD COLUMN protocol varchar(100) NULL')
+    db.commit()
+except sqlite3.OperationalError:
+    pass
 
 
 def fetchOne(query, values = None):

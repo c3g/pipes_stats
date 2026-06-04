@@ -6,6 +6,7 @@ const initialState = {
   submissions: 0,
   byPipeline: {},
   submissionsByCluster: {},
+  uniqueUsersByCluster: {},
 }
 
 export default function dataReducer(state = initialState, action) {
