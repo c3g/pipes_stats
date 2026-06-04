@@ -218,7 +218,8 @@ export default class DatePicker extends React.Component {
 
   componentDidUpdate(prevProps) {
     const { value } = this.props
-    if (this.getValue() !== value && prevProps.value !== value) {
+    const norm = v => (v != null ? v.slice(0, 10) : v)
+    if (norm(this.getValue()) !== norm(value) && norm(prevProps.value) !== norm(value)) {
       this.setState(this.makeDateValues(value))
     }
   }

@@ -50,6 +50,10 @@ function getParams(state, { params, stats }) {
 
   return {
     ...params,
+    from: state.from,
+    to: state.to ?? params.to,
+    mergeProtocol: state.mergeProtocol,
+    cluster: state.cluster,
     pipelines: { all, selected },
     versions: { all: allVersions, selected: selectedVersions },
     protocols: { all: allProtocols, selected: selectedProtocols },
