@@ -105,6 +105,27 @@ podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/w
 
 This is a one-time cleanup. New entries from `pipeline.cgi` always include a pipeline name.
 
+### Fixing unexpanded `$LOG_MD5` entries
+
+A bug in some versions of the GenPipes pipeline reporter caused the shell variable `$LOG_MD5` to be passed verbatim to the endpoint instead of the actual MD5 hash. These rows have `md5 = '$LOG_MD5'` in the database, which collides on the `UNIQUE` constraint and causes rows to be silently dropped on DB rebuilds. Run `fix-unexpanded-md5.py` to null out those values so every row is preserved as a distinct entry:
+
+```bash
+# Preview changes without applying them
+PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/fix-unexpanded-md5.py --dry-run
+
+# Apply
+PIPES_DB=/data/pipes_stats.db python3 /path/to/cgi-bin/fix-unexpanded-md5.py
+```
+
+Or inside the container:
+
+```bash
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/fix-unexpanded-md5.py --dry-run'
+podman exec <container-name> sh -c 'PIPES_DB=/data/pipes_stats.db python3 /var/www/cgi-bin/fix-unexpanded-md5.py'
+```
+
+Once the GenPipes bug is fixed upstream, this script only needs to be run once against the backlog of affected entries.
+
 ### Adding the user_hash column
 
 The `user_hash` column was added to track unique anonymous users per cluster. It stores a SHA-256 hash of the username — the original username is never saved. If you are migrating an existing production database (rather than rebuilding from scratch), run `migrate-add-user-hash.py` to add the column without touching existing rows:
