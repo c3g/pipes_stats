@@ -2,6 +2,7 @@
 import cgi
 import hashlib
 import os
+import re
 import sqlite3
 from datetime import datetime, timezone
 
@@ -26,7 +27,7 @@ version    = param('version')
 protocol   = param('protocol')
 steps      = param('steps')
 samples    = param('samples')
-md5        = param('md5') or None
+md5        = param('md5') if re.fullmatch(r'[0-9a-fA-F]{32}', param('md5')) else None
 user       = param('user')
 
 PIPELINE_NAMES = {

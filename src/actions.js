@@ -36,16 +36,25 @@ export function fetchData() {
     dispatch(requestData())
 
     const params = {
-      from:    ui.params.from,
-      to:      ui.params.to,
-      merge:   ui.params.merge,
-      cluster: ui.params.cluster,
+      from:        ui.params.from,
+      to:          ui.params.to,
+      merge:       ui.params.merge,
+      cluster:     ui.params.cluster,
+      granularity: getGranularity(ui.params.from, ui.params.to),
     }
     fetchStats(params)
     .then(data => normalizeData(data))
     .then(data => dispatch(receiveData(data)))
     .catch(err => !isCancel(err) && dispatch(receiveError(err)))
   }
+}
+
+function getGranularity(from, to) {
+  if (!from) return 'month'
+  const fromDate = new Date(from)
+  const toDate = new Date(to || Date.now())
+  const months = (toDate.getFullYear() - fromDate.getFullYear()) * 12 + (toDate.getMonth() - fromDate.getMonth())
+  return months <= 3 ? 'week' : 'month'
 }
 
 export function printPDF() {

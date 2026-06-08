@@ -54,7 +54,7 @@ def logToTuple(line):
     protocol        = kv.get('protocol', '')
     steps           = kv.get('steps', '')
     nb_samples      = parseInt(kv.get('nb_samples', '0'))
-    md5             = kv.get('md5') or None
+    md5             = parseMd5(kv.get('md5', ''))
     user            = kv.get('user', '')
     user_hash       = hashlib.sha256(user.encode()).hexdigest() if user else None
 
@@ -92,6 +92,9 @@ def parseInt(string):
         return int(string)
     except:
         return 0
+
+def parseMd5(string):
+    return string if re.fullmatch(r'[0-9a-fA-F]{32}', string) else None
 
 
 if __name__ == "__main__":
