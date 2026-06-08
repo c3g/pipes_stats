@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import cgi
+import hashlib
 import os
-from datetime import datetime, timezone, timedelta
+import sqlite3
+from datetime import datetime, timezone
 
 query = cgi.FieldStorage()
 
@@ -24,7 +26,25 @@ version    = param('version')
 protocol   = param('protocol')
 steps      = param('steps')
 samples    = param('samples')
-md5        = param('md5')
+md5        = param('md5') or None
+user       = param('user')
+
+PIPELINE_NAMES = {
+    'chipseq':              'ChipSeq',
+    'chipseq1':             'ChipSeq',
+    'dnaseq':               'DnaSeq',
+    'episeq':               'EpiSeq',
+    'pacbioassembly':       'PacBioAssembly',
+    'rnaseq':               'RnaSeq',
+    'rnaseqdenovoassembly': 'RnaSeqDeNovoAssembly',
+}
+
+pipeline_normalized = PIPELINE_NAMES.get(pipeline.lower(), pipeline)
+user_hash = hashlib.sha256(user.encode()).hexdigest() if user else None
+
+request_ip      = os.environ.get('REMOTE_ADDR', '')
+request_method  = os.environ.get('REQUEST_METHOD', '')
+http_user_agent = os.environ.get('HTTP_USER_AGENT', '')
 
 print('Content-Type: text/plain')
 print()
@@ -33,9 +53,9 @@ log_path = os.getenv('PIPES_LOG', '/data/mugqic_pipelines.log')
 with open(log_path, 'a') as f:
     f.write('\t'.join([
         timestamp,
-        f'request_ip={os.environ.get("REMOTE_ADDR", "")}',
-        f'request_method={os.environ.get("REQUEST_METHOD", "")}',
-        f'http_user_agent={os.environ.get("HTTP_USER_AGENT", "")}',
+        f'request_ip={request_ip}',
+        f'request_method={request_method}',
+        f'http_user_agent={http_user_agent}',
         f'hostname={hostname}',
         f'host_ip={ip}',
         f'pipeline={pipeline}',
@@ -43,5 +63,22 @@ with open(log_path, 'a') as f:
         f'protocol={protocol}',
         f'steps={steps}',
         f'nb_samples={samples}',
-        f'md5={md5}',
+        f'md5={md5 or ""}',
+        f'user={user}',
     ]) + '\n')
+
+db_path = os.getenv('PIPES_DB', '/data/pipes_stats.db')
+db = sqlite3.connect(db_path)
+db.execute('''
+    INSERT OR IGNORE INTO logs (
+        date, request_ip, request_method, http_user_agent,
+        hostname, host_ip, pipeline, version, protocol,
+        steps, nb_samples, md5, user_hash
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+''', (
+    timestamp, request_ip, request_method, http_user_agent,
+    hostname, ip, pipeline_normalized, version, protocol,
+    steps, int(samples) if samples.isdigit() else 0, md5, user_hash,
+))
+db.commit()
+db.close()
