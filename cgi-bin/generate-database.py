@@ -49,8 +49,9 @@ def logToTuple(line):
     http_user_agent = kv.get('http_user_agent', '')
     hostname        = kv.get('hostname', '')
     host_ip         = kv.get('host_ip', '')
-    pipeline        = normalize_pipeline(kv.get('pipeline', ''))
-    version         = kv.get('version', '')
+    pipeline_raw, embedded_version = split_pipeline_version(kv.get('pipeline', ''))
+    pipeline        = normalize_pipeline(pipeline_raw)
+    version         = kv.get('version', '') or embedded_version or ''
     protocol        = kv.get('protocol', '')
     steps           = kv.get('steps', '')
     nb_samples      = parseInt(kv.get('nb_samples', '0'))
@@ -81,11 +82,21 @@ PIPELINE_NAMES = {
     'episeq':               'EpiSeq',
     'pacbioassembly':       'PacBioAssembly',
     'rnaseq':               'RnaSeq',
+    'rnaseq-du':            'RnaSeqDeNovoAssembly',
+    'covseq':               'CoVSeq',
     'rnaseqdenovoassembly': 'RnaSeqDeNovoAssembly',
 }
 
 def normalize_pipeline(name):
     return PIPELINE_NAMES.get(name.lower(), name)
+
+def split_pipeline_version(raw):
+    """Split old-format 'pipelineName-X.Y[-suffix]' into (base, version).
+    Returns (raw, None) when no embedded version pattern is found."""
+    m = re.search(r'-(\d+\..*)$', raw)
+    if m:
+        return raw[:m.start()], m.group(1)
+    return raw, None
 
 def parseInt(string):
     try:

@@ -37,6 +37,8 @@ PIPELINE_NAMES = {
     'episeq':               'EpiSeq',
     'pacbioassembly':       'PacBioAssembly',
     'rnaseq':               'RnaSeq',
+    'covseq':               'CoVSeq',
+    'rnaseq-du':            'RnaSeqDeNovoAssembly',
     'rnaseqdenovoassembly': 'RnaSeqDeNovoAssembly',
 }
 

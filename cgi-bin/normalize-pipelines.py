@@ -2,17 +2,16 @@
 """
 Normalize legacy pipeline names in the database.
 
-Old pipeline log entries used inconsistent casing (e.g. chipSeq, dnaSeq).
-This script updates those rows to the canonical PascalCase names used by
-current GenPipes versions, so they aggregate correctly in the stats UI.
+Handles two legacy patterns:
+  1. Inconsistent casing:  chipSeq  -> ChipSeq
+  2. Embedded version:     chipSeq-1.3-beta -> pipeline=ChipSeq, version=1.3-beta
 
 Usage:
     PIPES_DB=/path/to/pipes_stats.db python3 normalize-pipelines.py
-
-    Or with --dry-run to preview changes without applying them:
     PIPES_DB=/path/to/pipes_stats.db python3 normalize-pipelines.py --dry-run
 """
 import os
+import re
 import sys
 import sqlite3
 
@@ -23,8 +22,19 @@ PIPELINE_NAMES = {
     'episeq':               'EpiSeq',
     'pacbioassembly':       'PacBioAssembly',
     'rnaseq':               'RnaSeq',
+    'rnaseq-du':            'RnaSeqDeNovoAssembly',
+    'covseq':               'CoVSeq',
     'rnaseqdenovoassembly': 'RnaSeqDeNovoAssembly',
 }
+
+def normalize_pipeline(name):
+    return PIPELINE_NAMES.get(name.lower(), name)
+
+def split_pipeline_version(raw):
+    m = re.search(r'-(\d+\..*)$', raw)
+    if m:
+        return raw[:m.start()], m.group(1)
+    return raw, None
 
 def main():
     dry_run = '--dry-run' in sys.argv
@@ -42,28 +52,28 @@ def main():
 
     total_changed = 0
 
-    for old_lower, canonical in PIPELINE_NAMES.items():
-        cur.execute(
-            'SELECT pipeline, COUNT(*) FROM logs WHERE LOWER(pipeline) = ? GROUP BY pipeline',
-            (old_lower,)
-        )
-        rows = cur.fetchall()
-        for (actual_name, count) in rows:
-            if actual_name == canonical:
-                continue
-            print(f"  {'[DRY RUN] ' if dry_run else ''}UPDATE {count} rows: '{actual_name}' -> '{canonical}'")
-            if not dry_run:
-                cur.execute(
-                    'UPDATE logs SET pipeline = ? WHERE pipeline = ?',
-                    (canonical, actual_name)
-                )
-            total_changed += count
+    cur.execute('SELECT id, pipeline, version FROM logs')
+    for (row_id, pipeline, version) in cur.fetchall():
+        base, embedded_ver = split_pipeline_version(pipeline)
+        canonical = normalize_pipeline(base)
+        new_version = version or embedded_ver or ''
+
+        if canonical == pipeline and new_version == (version or ''):
+            continue
+
+        print(f"  {'[DRY RUN] ' if dry_run else ''}"
+              f"id={row_id}: pipeline '{pipeline}' -> '{canonical}'"
+              + (f", version '' -> '{new_version}'" if new_version != (version or '') else ''))
+        if not dry_run:
+            cur.execute(
+                'UPDATE logs SET pipeline = ?, version = ? WHERE id = ?',
+                (canonical, new_version, row_id)
+            )
+        total_changed += 1
 
     if total_changed == 0:
         print('No changes needed — pipeline names are already normalized.')
-        return
-
-    if dry_run:
+    elif dry_run:
         print(f'\n{total_changed} rows would be updated. Run without --dry-run to apply.')
     else:
         con.commit()
