@@ -226,8 +226,10 @@ def parseDate(date):
   return datetime(year, month, day)
 
 def getCluster(hostname):
-  if hostname.startswith('abacus') or hostname.startswith('f') or 'ferrier.genome.mcgill.ca' in hostname:
+  if hostname.startswith('abacus') or 'ferrier.genome.mcgill.ca' in hostname or re.match(r'^f[349]', hostname):
     return 'Abacus'
+  if re.match(r'^f[bc]\d', hostname):
+    return 'Fir'
   if hostname.startswith('qlogin') or 'sickkids' in hostname:
     return 'Sick Kids'
   if hostname.startswith('ip'):

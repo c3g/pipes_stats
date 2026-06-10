@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import os
-import re
 import hashlib
 from utils import db, printJSON
 from models import queries
+from pipelines import normalize_pipeline, split_pipeline_version
 
 logFile = os.getenv('PIPES_LOG')
 
@@ -75,28 +75,6 @@ def logToTuple(line):
         user_hash
     )
 
-PIPELINE_NAMES = {
-    'chipseq':              'ChipSeq',
-    'chipseq1':             'ChipSeq',
-    'dnaseq':               'DnaSeq',
-    'episeq':               'EpiSeq',
-    'pacbioassembly':       'PacBioAssembly',
-    'rnaseq':               'RnaSeq',
-    'rnaseq-du':            'RnaSeqDeNovoAssembly',
-    'covseq':               'CoVSeq',
-    'rnaseqdenovoassembly': 'RnaSeqDeNovoAssembly',
-}
-
-def normalize_pipeline(name):
-    return PIPELINE_NAMES.get(name.lower(), name)
-
-def split_pipeline_version(raw):
-    """Split old-format 'pipelineName-X.Y[-suffix]' into (base, version).
-    Returns (raw, None) when no embedded version pattern is found."""
-    m = re.search(r'-(\d+\..*)$', raw)
-    if m:
-        return raw[:m.start()], m.group(1)
-    return raw, None
 
 def parseInt(string):
     try:

@@ -11,30 +11,9 @@ Usage:
     PIPES_DB=/path/to/pipes_stats.db python3 normalize-pipelines.py --dry-run
 """
 import os
-import re
 import sys
 import sqlite3
-
-PIPELINE_NAMES = {
-    'chipseq':              'ChipSeq',
-    'chipseq1':             'ChipSeq',
-    'dnaseq':               'DnaSeq',
-    'episeq':               'EpiSeq',
-    'pacbioassembly':       'PacBioAssembly',
-    'rnaseq':               'RnaSeq',
-    'rnaseq-du':            'RnaSeqDeNovoAssembly',
-    'covseq':               'CoVSeq',
-    'rnaseqdenovoassembly': 'RnaSeqDeNovoAssembly',
-}
-
-def normalize_pipeline(name):
-    return PIPELINE_NAMES.get(name.lower(), name)
-
-def split_pipeline_version(raw):
-    m = re.search(r'-(\d+\..*)$', raw)
-    if m:
-        return raw[:m.start()], m.group(1)
-    return raw, None
+from pipelines import normalize_pipeline, split_pipeline_version
 
 def main():
     dry_run = '--dry-run' in sys.argv

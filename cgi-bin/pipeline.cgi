@@ -5,6 +5,7 @@ import os
 import re
 import sqlite3
 from datetime import datetime, timezone
+from pipelines import normalize_pipeline
 
 query = cgi.FieldStorage()
 
@@ -30,19 +31,7 @@ samples    = param('samples')
 md5        = param('md5') if re.fullmatch(r'[0-9a-fA-F]{32}', param('md5')) else None
 user       = param('user')
 
-PIPELINE_NAMES = {
-    'chipseq':              'ChipSeq',
-    'chipseq1':             'ChipSeq',
-    'dnaseq':               'DnaSeq',
-    'episeq':               'EpiSeq',
-    'pacbioassembly':       'PacBioAssembly',
-    'rnaseq':               'RnaSeq',
-    'covseq':               'CoVSeq',
-    'rnaseq-du':            'RnaSeqDeNovoAssembly',
-    'rnaseqdenovoassembly': 'RnaSeqDeNovoAssembly',
-}
-
-pipeline_normalized = PIPELINE_NAMES.get(pipeline.lower(), pipeline)
+pipeline_normalized = normalize_pipeline(pipeline)
 user_hash = hashlib.sha256(user.encode()).hexdigest() if user else None
 
 request_ip      = os.environ.get('REMOTE_ADDR', '')
