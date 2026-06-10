@@ -11,9 +11,7 @@ COPY cgi-bin/       /var/www/cgi-bin/
 COPY requirements.txt /var/www/requirements.txt
 WORKDIR /var/www
 USER root
-RUN dnf install -y epel-release && \
-    dnf config-manager --set-enabled crb && \
-    dnf install -y httpd mod_evasive python3 python3-pip && \
+RUN dnf install -y httpd python3 python3-pip && \
     pip3 install -r requirements.txt && \
     chmod +x /var/www/cgi-bin/*.py /var/www/cgi-bin/*.cgi && \
     dnf clean all

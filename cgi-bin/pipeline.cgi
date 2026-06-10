@@ -4,8 +4,12 @@ import hashlib
 import os
 import re
 import sqlite3
+import time
 from datetime import datetime, timezone
 from pipelines import normalize_pipeline
+
+RATE_LIMIT = 20   # max requests per IP
+RATE_WINDOW = 60  # seconds
 
 query = cgi.FieldStorage()
 
@@ -38,6 +42,28 @@ request_ip      = os.environ.get('REMOTE_ADDR', '')
 request_method  = os.environ.get('REQUEST_METHOD', '')
 http_user_agent = os.environ.get('HTTP_USER_AGENT', '')
 
+db_path = os.getenv('PIPES_DB', '/data/pipes_stats.db')
+db = sqlite3.connect(db_path)
+db.execute('''
+    CREATE TABLE IF NOT EXISTS rate_limit (ip TEXT NOT NULL, ts INTEGER NOT NULL)
+''')
+now_ts = int(time.time())
+window_start = now_ts - RATE_WINDOW
+db.execute('DELETE FROM rate_limit WHERE ts < ?', (window_start,))
+count = db.execute(
+    'SELECT COUNT(*) FROM rate_limit WHERE ip = ? AND ts >= ?',
+    (request_ip, window_start)
+).fetchone()[0]
+if count >= RATE_LIMIT:
+    db.close()
+    print('Status: 429 Too Many Requests')
+    print('Content-Type: text/plain')
+    print()
+    print('Rate limit exceeded')
+    raise SystemExit
+db.execute('INSERT INTO rate_limit (ip, ts) VALUES (?, ?)', (request_ip, now_ts))
+db.commit()
+
 print('Content-Type: text/plain')
 print()
 
@@ -59,8 +85,6 @@ with open(log_path, 'a') as f:
         f'user={user}',
     ]) + '\n')
 
-db_path = os.getenv('PIPES_DB', '/data/pipes_stats.db')
-db = sqlite3.connect(db_path)
 db.execute('''
     INSERT OR IGNORE INTO logs (
         date, request_ip, request_method, http_user_agent,
