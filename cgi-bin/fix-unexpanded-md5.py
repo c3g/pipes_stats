@@ -2,6 +2,11 @@
 """
 Null out md5 values that were stored as the unexpanded shell literal '$LOG_MD5'.
 
+Maintenance script for the live DB. generate-database.py already rejects
+non-hex md5 values (including '$LOG_MD5') via parseMd5() at generation time,
+so this script is only needed to fix entries that arrived between two full
+DB regenerations.
+
 A bug in the GenPipes pipeline reporter caused the shell variable $LOG_MD5 to
 be passed verbatim to the endpoint instead of the actual hash. These rows have
 md5 = '$LOG_MD5' in the database, which collides on the UNIQUE constraint and

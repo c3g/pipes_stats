@@ -2,6 +2,11 @@
 """
 Normalize legacy pipeline names in the database.
 
+Maintenance script for the live DB. generate-database.py already applies
+normalize_pipeline() and split_pipeline_version() at generation time, so
+this script is only needed to fix entries that arrived between two full
+DB regenerations.
+
 Handles two legacy patterns:
   1. Inconsistent casing:  chipSeq  -> ChipSeq
   2. Embedded version:     chipSeq-1.3-beta -> pipeline=ChipSeq, version=1.3-beta

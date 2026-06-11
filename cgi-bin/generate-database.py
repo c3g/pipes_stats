@@ -16,7 +16,7 @@ def main():
     db.execute(queries.dropTable)
     db.execute(queries.createTable)
 
-    values = map(logToTuple, logs)
+    values = [v for v in (logToTuple(line) for line in logs) if v is not None]
 
     db.executemany(queries.insertLog, values)
     db.commit()
@@ -52,6 +52,8 @@ def logToTuple(line):
     host_ip         = kv.get('host_ip', '')
     pipeline_raw, embedded_version = split_pipeline_version(kv.get('pipeline', ''))
     pipeline        = normalize_pipeline(pipeline_raw)
+    if not pipeline:
+        return None
     version         = kv.get('version', '') or embedded_version or ''
     protocol        = kv.get('protocol', '')
     steps           = kv.get('steps', '')

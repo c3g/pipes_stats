@@ -2,9 +2,9 @@
 """
 Remove log entries with empty pipeline names from the database.
 
-Some old log entries were recorded without a pipeline name (pipeline = '').
-These entries cannot be attributed to any pipeline and skew the stats UI.
-This script deletes them.
+Maintenance script for the live DB. generate-database.py already skips
+empty-pipeline rows at generation time, so this script is only needed to
+clean up entries that arrived between two full DB regenerations.
 
 Usage:
     PIPES_DB=/path/to/pipes_stats.db python3 clean-empty-pipelines.py
