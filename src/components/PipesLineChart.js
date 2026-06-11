@@ -107,6 +107,10 @@ function parseMonthKey(key) {
   return new Date(Number(year), Number(month) - 1, 1)
 }
 
+function isDayKey(key) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(key)
+}
+
 function isWeekKey(key) {
   return /^\d{4}-W\d{2}$/.test(key)
 }
@@ -123,9 +127,25 @@ function isoWeekToDate(weekKey) {
   return monday
 }
 
+function parseDayKey(key) {
+  const [year, month, day] = key.split('-')
+  return new Date(Number(year), Number(month) - 1, Number(day))
+}
+
 function getXAxisProps(data) {
   if (data.length === 0) return { interval: 0 }
   const n = data.length
+
+  if (isDayKey(data[0].month)) {
+    const interval = n <= 14 ? 0 : Math.ceil(n / 14) - 1
+    return {
+      interval,
+      tickFormatter: dayKey => {
+        const d = parseDayKey(dayKey)
+        return d.toLocaleString('en-US', { month: 'short', day: 'numeric' })
+      },
+    }
+  }
 
   if (isWeekKey(data[0].month)) {
     // Week mode: at most ~13 weeks; show every week or every other week
@@ -164,6 +184,9 @@ function getXAxisProps(data) {
 }
 
 function periodToLabel(key) {
+  if (isDayKey(key)) {
+    return parseDayKey(key).toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  }
   if (isWeekKey(key)) {
     const start = isoWeekToDate(key)
     const end = new Date(start)

@@ -53,7 +53,9 @@ function getGranularity(from, to) {
   if (!from) return 'month'
   const fromDate = new Date(from)
   const toDate = new Date(to || Date.now())
+  const days = Math.round((toDate - fromDate) / 86400000)
   const months = (toDate.getFullYear() - fromDate.getFullYear()) * 12 + (toDate.getMonth() - fromDate.getMonth())
+  if (days <= 21) return 'day'
   return months <= 3 ? 'week' : 'month'
 }
 

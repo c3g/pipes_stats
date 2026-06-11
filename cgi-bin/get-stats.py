@@ -19,7 +19,7 @@ def main():
   merge       = True if get(args, 'merge') == 'true' else False
   cluster     = get(args, 'cluster') or None
   granularity = get(args, 'granularity') or 'month'
-  if granularity not in ('week', 'month'):
+  if granularity not in ('day', 'week', 'month'):
     granularity = 'month'
 
   (query, values) = createQuery(dateFrom, dateTo, merge)
@@ -122,7 +122,10 @@ def generateStats(records, cluster_filter=None, granularity='month'):
     if date > maxDate:
       maxDate = date
 
-  if granularity == 'week':
+  if granularity == 'day':
+    indexByPeriod = getDaysInRange(minDate, maxDate)
+    getPeriodKey = lambda d: d[:10] if isinstance(d, str) else d.strftime('%Y-%m-%d')
+  elif granularity == 'week':
     indexByPeriod = getWeeksInRange(minDate, maxDate)
     getPeriodKey = lambda d: getISOWeekKey(parseDate(d))
   else:
@@ -196,6 +199,16 @@ def getMonthsInRange(start, end):
   months[getMonthYear(current)] = i - 1
 
   return months
+
+def getDaysInRange(start, end):
+  days = {}
+  current = start
+  i = 0
+  while current <= end:
+    days[current.strftime('%Y-%m-%d')] = i
+    current += timedelta(days=1)
+    i += 1
+  return days
 
 def getISOWeekKey(date_obj):
   iso_year, iso_week, _ = date_obj.isocalendar()
