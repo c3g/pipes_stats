@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import re
 import hashlib
 from utils import db, printJSON
 from models import queries
