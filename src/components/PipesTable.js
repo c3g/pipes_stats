@@ -1,5 +1,12 @@
 import React, { useState } from 'react'
-import { Table } from 'react-bootstrap'
+import { Table, OverlayTrigger, Popover } from 'react-bootstrap'
+
+const PIPELINE_METADATA = {
+  'Forge': {
+    description: 'SickKids custom variant-calling pipeline used for the FORGE Canada rare disease genetics project (2016–2019).',
+    url: 'https://genomecanada.ca/project/finding-rare-disease-genes-canada-forge-canada/',
+  },
+}
 
 const VERSION_RE = /-(\d+\.\d+.*)$/
 const PROTOCOL_RE = /\.([^-]+)/
@@ -12,6 +19,32 @@ function splitName(name) {
   const protocol = pMatch ? pMatch[1] : ''
   const pipeline = pMatch ? base.slice(0, pMatch.index) : base
   return { pipeline, protocol, version }
+}
+
+function PipelineName({ name }) {
+  const meta = PIPELINE_METADATA[name]
+  if (!meta) return name
+  return (
+    <span>
+      {name}
+      {' '}
+      <OverlayTrigger
+        trigger='click'
+        placement='right'
+        rootClose
+        overlay={
+          <Popover id={`popover-pipeline-${name}`}>
+            <Popover.Body>
+              {meta.description}{' '}
+              <a href={meta.url} target='_blank' rel='noopener noreferrer'>Learn more</a>
+            </Popover.Body>
+          </Popover>
+        }
+      >
+        <span className='pipeline-info-icon' role='button'>ⓘ</span>
+      </OverlayTrigger>
+    </span>
+  )
 }
 
 function averageFormatter(cell) {
@@ -84,7 +117,7 @@ function PipesTable({ data, hasVersions, hasProtocols }) {
       <tbody>
         {sorted.map(row => (
           <tr key={row.name}>
-            <td className='key'>{row.pipeline}</td>
+            <td className='key'><PipelineName name={row.pipeline} /></td>
             {hasProtocols && <td className='key'>{row.protocol}</td>}
             {hasVersions && <td className='key'>{row.version}</td>}
             <td className='PipesTable__number text-end'>{row.samples}</td>

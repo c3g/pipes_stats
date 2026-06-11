@@ -6,7 +6,7 @@ import cgi
 import re
 from time import time
 from dateutil.relativedelta import relativedelta
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from utils import db, fetchOne, printJSON, printError
 from models import k, keys, queries
 
@@ -14,10 +14,13 @@ def main():
   args = cgi.FieldStorage()
 
 
-  dateFrom  = get(args, 'from') or fetchOne('SELECT MIN(date) FROM logs;')[0]
-  dateTo    = get(args, 'to')   or fetchOne('SELECT MAX(date) FROM logs;')[0]
-  merge     = True if get(args, 'merge') == 'true' else False
-  cluster   = get(args, 'cluster') or None
+  dateFrom    = get(args, 'from') or fetchOne('SELECT MIN(date) FROM logs;')[0]
+  dateTo      = get(args, 'to')   or fetchOne('SELECT MAX(date) FROM logs;')[0]
+  merge       = True if get(args, 'merge') == 'true' else False
+  cluster     = get(args, 'cluster') or None
+  granularity = get(args, 'granularity') or 'month'
+  if granularity not in ('day', 'week', 'month'):
+    granularity = 'month'
 
   (query, values) = createQuery(dateFrom, dateTo, merge)
 
@@ -26,12 +29,13 @@ def main():
 
   rows = cursor.fetchall()
 
-  stats = generateStats(rows, cluster_filter=cluster)
+  stats = generateStats(rows, cluster_filter=cluster, granularity=granularity)
 
   params = {
     'from': dateFrom,
     'to': dateTo,
     'merge': merge,
+    'granularity': granularity,
     'minDate': fetchOne('SELECT MIN(date) FROM logs;')[0],
     'maxDate': fetchOne('SELECT MAX(date) FROM logs;')[0]
   }
@@ -62,7 +66,7 @@ def createQuery(dateFrom, dateTo, merge):
 
   return (query, tuple(values))
 
-def generateStats(records, cluster_filter=None):
+def generateStats(records, cluster_filter=None, granularity='month'):
   """
   Generate stats by pipeline by month for given records.
   submissionsByCluster always reflects ALL records; byPipeline is filtered by cluster_filter.
@@ -118,19 +122,27 @@ def generateStats(records, cluster_filter=None):
     if date > maxDate:
       maxDate = date
 
-  indexByMonth = getMonthsInRange(minDate, maxDate)
+  if granularity == 'day':
+    indexByPeriod = getDaysInRange(minDate, maxDate)
+    getPeriodKey = lambda d: d[:10] if isinstance(d, str) else d.strftime('%Y-%m-%d')
+  elif granularity == 'week':
+    indexByPeriod = getWeeksInRange(minDate, maxDate)
+    getPeriodKey = lambda d: getISOWeekKey(parseDate(d))
+  else:
+    indexByPeriod = getMonthsInRange(minDate, maxDate)
+    getPeriodKey = getMonthYear
 
   for pipeline in recordsByPipeline.keys():
     recs = recordsByPipeline[pipeline]
     pipelineSamples = 0
     pipelineSubmissions = len(recs)
     pipelineSteps = 0
-    stat_per_month = {key: 0 for key in indexByMonth.keys()}
+    stat_per_period = {key: 0 for key in indexByPeriod.keys()}
     clusterBreakdown = {}
 
     for record in recs:
-      month = getMonthYear(record[k.date])
-      stat_per_month[month] += record[k.nb_samples]
+      period = getPeriodKey(record[k.date])
+      stat_per_period[period] += record[k.nb_samples]
       pipelineSamples += record[k.nb_samples]
       pipelineSteps += countSteps(record[k.steps])
       cluster = getCluster(record[k.hostname])
@@ -144,7 +156,7 @@ def generateStats(records, cluster_filter=None):
       'submissions': pipelineSubmissions,
       'average': round(float(pipelineSamples) / pipelineSubmissions),
       'steps': pipelineSteps,
-      'months':  [{'samples': val, 'month': key} for key, val in sorted(stat_per_month.items())],
+      'months':  [{'samples': val, 'month': key} for key, val in sorted(stat_per_period.items())],
       'clusterBreakdown': clusterBreakdown,
     }
 
@@ -188,6 +200,30 @@ def getMonthsInRange(start, end):
 
   return months
 
+def getDaysInRange(start, end):
+  days = {}
+  current = start
+  i = 0
+  while current <= end:
+    days[current.strftime('%Y-%m-%d')] = i
+    current += timedelta(days=1)
+    i += 1
+  return days
+
+def getISOWeekKey(date_obj):
+  iso_year, iso_week, _ = date_obj.isocalendar()
+  return f"{iso_year}-W{iso_week:02d}"
+
+def getWeeksInRange(start, end):
+  monday = start - timedelta(days=start.weekday())
+  weeks = {}
+  i = 0
+  while monday <= end:
+    weeks[getISOWeekKey(monday)] = i
+    monday += timedelta(weeks=1)
+    i += 1
+  return weeks
+
 def get(args, key):
   if key in args:
     return args[key].value
@@ -203,8 +239,10 @@ def parseDate(date):
   return datetime(year, month, day)
 
 def getCluster(hostname):
-  if hostname.startswith('abacus') or hostname.startswith('f') or 'ferrier.genome.mcgill.ca' in hostname:
+  if hostname.startswith('abacus') or 'ferrier.genome.mcgill.ca' in hostname or re.match(r'^f[349]', hostname):
     return 'Abacus'
+  if re.match(r'^f[bc]\d', hostname):
+    return 'Fir'
   if hostname.startswith('qlogin') or 'sickkids' in hostname:
     return 'Sick Kids'
   if hostname.startswith('ip'):

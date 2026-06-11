@@ -126,7 +126,8 @@ class PipesPieChart extends React.Component {
 }
 
 function computeLabelPositions(data, cxPx, cyPx, outerRadius, filter) {
-  const LINE_HEIGHT = 16
+  const MIN_GAP = 20
+  const MARGIN = 10
   const r = outerRadius + 20
   const total = data.reduce((s, d) => s + (d.value || 0), 0)
   if (total === 0) return {}
@@ -143,24 +144,38 @@ function computeLabelPositions(data, cxPx, cyPx, outerRadius, filter) {
     labeled.push({ name: d.name, naturalEy: cyPx + r * sin, isRight: cos >= 0 })
   })
 
+  const chartHeight = cyPx * 2
   const result = {}
+
   for (const isRight of [true, false]) {
     const side = labeled.filter(e => e.isRight === isRight)
     if (side.length === 0) continue
     side.sort((a, b) => a.naturalEy - b.naturalEy)
 
-    let needsSpread = false
-    for (let i = 1; i < side.length; i++) {
-      if (side[i].naturalEy - side[i - 1].naturalEy < LINE_HEIGHT) { needsSpread = true; break }
+    const positions = side.map(e => e.naturalEy)
+
+    // Forward pass: push each label down just enough to clear the previous one
+    for (let i = 1; i < positions.length; i++) {
+      if (positions[i] < positions[i - 1] + MIN_GAP)
+        positions[i] = positions[i - 1] + MIN_GAP
     }
 
-    if (!needsSpread) {
-      side.forEach(e => { result[e.name] = e.naturalEy })
-    } else {
-      const center = side.reduce((s, e) => s + e.naturalEy, 0) / side.length
-      const top = center - ((side.length - 1) * LINE_HEIGHT) / 2
-      side.forEach((e, i) => { result[e.name] = top + i * LINE_HEIGHT })
+    // Backward pass: if the last label overflows the bottom, pull everything up
+    if (positions[positions.length - 1] > chartHeight - MARGIN) {
+      positions[positions.length - 1] = chartHeight - MARGIN
+      for (let i = positions.length - 2; i >= 0; i--) {
+        if (positions[i] > positions[i + 1] - MIN_GAP)
+          positions[i] = positions[i + 1] - MIN_GAP
+      }
     }
+
+    // Clamp the top into view
+    if (positions[0] < MARGIN) {
+      const shift = MARGIN - positions[0]
+      for (let i = 0; i < positions.length; i++) positions[i] += shift
+    }
+
+    side.forEach((e, i) => { result[e.name] = positions[i] })
   }
   return result
 }

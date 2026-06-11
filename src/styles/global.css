@@ -145,6 +145,12 @@ body.loading::after {
 .PipesTable td.key {
   font-weight: bold;
 }
+.pipeline-info-icon {
+  font-size: 0.75em;
+  color: #6c757d;
+  cursor: pointer;
+  vertical-align: super;
+}
 
 .recharts-tooltip-wrapper {
   z-index: 1;
